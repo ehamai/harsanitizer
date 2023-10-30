@@ -1,29 +1,33 @@
-import { authorizationHeaderRule } from "./headerRules/authorizationHeaderRule";
-import { Entry, HarFile, NameValueKeyPair, Request } from "./models/harFile";
-import { armBatchResponseRule } from "./requestRules/armBatchResponseRule";
-import { armPostResponseRule } from "./requestRules/armPostResponseRule";
-import { authorizationRequestRule } from "./requestRules/authorizationRule";
-import { jsonPutPostRequestRule } from "./requestRules/jsonPutPostRequestRule";
-import { jsonResponseRule } from "./requestRules/jsonResponseRule";
+import { Entry, HarFile } from "./models/harFile";
+import { ArmBatchResponseRule } from "./requestRules/armBatchResponseRule";
+import { ArmPostResponseRule } from "./requestRules/armPostResponseRule";
+import { AuthorizationRequestRule } from "./requestRules/authorizationRule";
+import { CookiesAndHeadersRule } from "./requestRules/cookiesAndHeadersRule";
+import { JSONPutPostRequestRule } from "./requestRules/jsonPutPostRequestRule";
+import { JSONResponseRule } from "./requestRules/jsonResponseRule";
+import { SanitizationRule } from "./requestRules/sanitizationRule";
 
 export const REDACTED = '___REDACTED___';
 
-const headerRules: ((kv: NameValueKeyPair) => void)[] = [
-    // authorizationHeaderRule
-]
-
-const requestRules: ((requestEntry: Entry) => void)[] = [
-    authorizationRequestRule,
-    jsonPutPostRequestRule,
-    armPostResponseRule,
-    armBatchResponseRule,
-    jsonResponseRule
+const sanitizationRules: SanitizationRule[] = [
+    new CookiesAndHeadersRule(),
+    new AuthorizationRequestRule(),
+    new ArmBatchResponseRule(),
+    new ArmPostResponseRule(),
+    new JSONPutPostRequestRule(),
+    new JSONResponseRule()
 ]
 
 export const sanitize = (file: HarFile) =>{
     for(const entry of file.log.entries){
-        for(const rule of requestRules){
-            rule(entry);
+        for(const rule of sanitizationRules){
+            try{
+                if(rule.isApplicable(entry)){
+                    rule.sanitize(entry);
+                }
+            } catch(e){
+                console.log(`[${rule.getName()}] Failed to sanitize url: ${entry.request.method} ${entry.request.url}`);
+            }
         }
     }
 }

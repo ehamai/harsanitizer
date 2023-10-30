@@ -1,13 +1,13 @@
 import { readFile, writeFile } from 'node:fs';
 import { sanitize } from './sanitizer/sanitizer';
 
-readFile('./harFiles/DCContainerUpdates.har', 'utf8', (err, content) =>{
+readFile('./harFiles/cookie.har', 'utf8', (err, content) =>{
     try{
         const json = JSON.parse(content);
         sanitize(json);
         console.log('success');
 
-        writeFile('./out.har', JSON.stringify(json), (err) =>{
+        writeFile('./out.har', JSON.stringify(json, null, "  "), (err) =>{
             if(err){
                 console.log('failed to save file');
             } else{

@@ -1,13 +1,5 @@
 import { REDACTED } from "../sanitizer";
-
-const keywords: string[] = [
-    'secret',
-    'password',
-    'pwd',
-    'token',
-    'connectionstring',
-    'key'
-];
+import { keywords } from "./constants";
 
 // Recursively redacts all string properties which have a keywords in the name
 // If cleanAllProperties is true, then will clean all string properties found

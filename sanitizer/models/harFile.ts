@@ -26,6 +26,11 @@ export interface Response{
     content: Content;
 }
 
+export interface Cookie{
+    name: string;
+    value: string;
+}
+
 export interface NameValueKeyPair{
     name: string;
     value: string;

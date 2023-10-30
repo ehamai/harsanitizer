@@ -2,41 +2,56 @@ import { cleanProperties } from "../common/cleanProperties";
 import { MimeType } from "../common/constants";
 import { Entry } from "../models/harFile";
 import { REDACTED } from "../sanitizer";
-import url = require('url');
+import { SanitizationRule } from "./sanitizationRule";
 
-// etodo: add in other ARM hostnames
-export const armHostnames = ['management.azure.com'];
+export const armHostnamesLowerCase = [
+    'management.azure.com',
+    'management.chinacloudapi.cn',
+    'management.usgovcloudapi.net'
+];
 
 // POST requests are often used for returning secrets.  For this rule, we aggresively
 // sanitize all value data within a response.
-export const armPostResponseRule = (requestEntry: Entry) => {
-    const { request, response } = requestEntry;
-
-    if (request.method !== 'POST') {
-        return;
+export class ArmPostResponseRule implements SanitizationRule {
+    getName() {
+        return 'ArmPostResponseRule';
     }
 
-    const parsedUrl = new URL(request.url);
-    const parsedHostName = parsedUrl.hostname.toLowerCase();
-    const pathName = parsedUrl.pathname.toLowerCase();
-    if (armHostnames.findIndex((hostname) => hostname === parsedHostName) === -1 ||
-        pathName === '/batch' ||
-        pathName === '/providers/microsoft.resourcegraph/resources') {
-        return;
+    isApplicable(requestEntry: Entry): boolean {
+        const { request } = requestEntry;
+
+        if (request.method !== 'POST') {
+            return false;
+        }
+
+        const parsedUrl = new URL(request.url);
+        const parsedHostName = parsedUrl.hostname.toLowerCase();
+        const pathName = parsedUrl.pathname.toLowerCase();
+        if (armHostnamesLowerCase.findIndex((hostname) => hostname === parsedHostName) === -1 ||
+            pathName === '/batch' ||
+            pathName === '/providers/microsoft.resourcegraph/resources') {
+            return false;
+        }
+
+        return true;
     }
 
-    if(!response.content){
-        return;
-    }else if(response.content?.mimeType !== MimeType.json){
-        console.log('[armPostResponseRule] Redacting non-JSON response');
-        response.content.text = REDACTED;
-    } else{
-        try{
-            const json = JSON.parse(response.content.text);
-            cleanProperties(json, 'armPostResponseRule', true /* cleanAllProperties */);
-            response.content.text = JSON.stringify(json);
-        }catch(e){
-            console.log('[armPostResponseRule] - Failed to sanitize text: ' + e);
+    sanitize(requestEntry: Entry): void {
+        const response = requestEntry.response;
+
+        if (!response.content) {
+            return;
+        } else if (response.content?.mimeType !== MimeType.json) {
+            console.log(`[${this.getName()}] Redacting non-JSON response`);
+            response.content.text = REDACTED;
+        } else {
+            try {
+                const json = JSON.parse(response.content.text);
+                cleanProperties(json, this.getName(), true /* cleanAllProperties */);
+                response.content.text = JSON.stringify(json);
+            } catch (e) {
+                console.log('[armPostResponseRule] - Failed to sanitize text: ' + e);
+            }
         }
     }
 }
