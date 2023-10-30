@@ -1,8 +1,10 @@
 import { authorizationHeaderRule } from "./headerRules/authorizationHeaderRule";
-import { HarFile, NameValueKeyPair, Request } from "./models/harFile";
+import { Entry, HarFile, NameValueKeyPair, Request } from "./models/harFile";
+import { armBatchResponseRule } from "./requestRules/armBatchResponseRule";
+import { armPostResponseRule } from "./requestRules/armPostResponseRule";
 import { authorizationRequestRule } from "./requestRules/authorizationRule";
-import { batchRequestRule } from "./requestRules/batchRequestRule";
 import { jsonPutPostRequestRule } from "./requestRules/jsonPutPostRequestRule";
+import { jsonResponseRule } from "./requestRules/jsonResponseRule";
 
 export const REDACTED = '___REDACTED___';
 
@@ -10,16 +12,18 @@ const headerRules: ((kv: NameValueKeyPair) => void)[] = [
     // authorizationHeaderRule
 ]
 
-const requestRules: ((request: Request) => void)[] = [
+const requestRules: ((requestEntry: Entry) => void)[] = [
     authorizationRequestRule,
     jsonPutPostRequestRule,
-    // batchRequestRule
+    armPostResponseRule,
+    armBatchResponseRule,
+    jsonResponseRule
 ]
 
 export const sanitize = (file: HarFile) =>{
     for(const entry of file.log.entries){
         for(const rule of requestRules){
-            rule(entry.request);
+            rule(entry);
         }
     }
 }

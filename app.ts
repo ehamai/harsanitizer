@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'node:fs';
 import { sanitize } from './sanitizer/sanitizer';
 
-readFile('./DCContainerUpdates.har', 'utf8', (err, content) =>{
+readFile('./harFiles/DCContainerUpdates.har', 'utf8', (err, content) =>{
     try{
         const json = JSON.parse(content);
         sanitize(json);

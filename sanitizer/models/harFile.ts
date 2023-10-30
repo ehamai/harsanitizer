@@ -6,6 +6,7 @@ export interface HarFile{
 
 export interface Entry{
     request: Request;
+    response: Response;
 }
 
 export interface Request{

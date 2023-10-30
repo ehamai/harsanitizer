@@ -1,8 +1,10 @@
 import { cleanProperties } from "../common/cleanProperties";
-import { Request } from "../models/harFile";
+import { MimeType } from "../common/constants";
+import { Entry } from "../models/harFile";
 
-export const jsonPutPostRequestRule = (request: Request) =>{
-    if(!request.postData || request.postData.mimeType.toLowerCase() !== 'application/json'.toLowerCase()){
+export const jsonPutPostRequestRule = (requestEntry: Entry) =>{
+    const request = requestEntry.request;
+    if(!request.postData || request.postData.mimeType.toLowerCase() !== MimeType.json){
         return;
     }
 

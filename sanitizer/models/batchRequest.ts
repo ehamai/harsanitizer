@@ -1,20 +1,30 @@
 export interface UberBatchRequest {
     requests: BatchRequest[],
-    headers?: BatchHeader;
+    headers?: BatchHeaders;
 }
 
-export interface BatchHeader {
+export interface UberBatchResponse {
+    responses: BatchResponse[];
+}
+
+export interface BatchHeaders {
     [id: string]: string[];
 }
 
 export interface BatchRequest {
     httpMethod: 'GET' | 'PUT' | 'PATCH' | 'POST' | 'DELETE' | 'OPTION',
     url: string;
-    content: BatchRequestContent,
+    content: ArmObj;
     requestHeaderDetails: { [id: string]: string };
 }
 
-export interface BatchRequestContent {
+export interface BatchResponse{
+    httpStatusCode: number;
+    headers: BatchHeaders;
+    content: any;
+}
+
+export interface ArmObj {
     id: string;
     name: string;
     type: string;
