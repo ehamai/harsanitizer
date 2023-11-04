@@ -20,6 +20,9 @@ export class JSONPutPostRequestRule implements SanitizationRule {
 
     sanitize(requestEntry: Entry): void {
         const request = requestEntry.request;
+        if(!request.postData){
+            return;
+        }
 
         try {
             const content = JSON.parse(request.postData.text);

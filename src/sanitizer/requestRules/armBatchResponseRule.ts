@@ -37,6 +37,9 @@ export class ArmBatchResponseRule implements SanitizationRule {
 
     sanitize(requestEntry: Entry): void {
         const { request, response } = requestEntry;
+        if(!request.postData?.text){
+            return;
+        }
 
         if (response.content.mimeType !== MimeType.json) {
             response.content.text = REDACTED;
