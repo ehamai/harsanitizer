@@ -18,7 +18,7 @@ export class ArmPostResponseRule implements SanitizationRule {
     }
 
     isApplicable(requestEntry: Entry): boolean {
-        const { request } = requestEntry;
+        const { request, response } = requestEntry;
 
         if (request.method !== 'POST') {
             return false;
@@ -29,7 +29,9 @@ export class ArmPostResponseRule implements SanitizationRule {
         const pathName = parsedUrl.pathname.toLowerCase();
         if (armHostnamesLowerCase.findIndex((hostname) => hostname === parsedHostName) === -1 ||
             pathName === '/batch' ||
-            pathName === '/providers/microsoft.resourcegraph/resources') {
+            pathName === '/providers/microsoft.resourcegraph/resources' ||
+            response.status < 200 ||
+            response.status >= 300) {
             return false;
         }
 

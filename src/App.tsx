@@ -26,16 +26,20 @@ function App() {
     if (input.files && input.files.length > 0) {
       setFileName(input.files[0].name);
       readFileContent(input.files[0]).then(content => {
-        const parsedContent = JSON.parse(content) as HarFile;
-        sanitize(parsedContent);
-
-        console.log(parsedContent);
-        const blob = new Blob([JSON.stringify(parsedContent)], {
-          type: "application/json",
-        });
-        const url = URL.createObjectURL(blob);
-        console.log(url);
-        setDownloadUrl(url);
+        try{
+          const parsedContent = JSON.parse(content) as HarFile;
+          sanitize(parsedContent);
+  
+          console.log(parsedContent);
+          const blob = new Blob([JSON.stringify(parsedContent)], {
+            type: "application/json",
+          });
+          const url = URL.createObjectURL(blob);
+          console.log(url);
+          setDownloadUrl(url);
+        }catch(e){
+          console.log('Failed to parse file');
+        }
       }).catch(error => console.log(error))
     }
   }

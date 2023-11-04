@@ -37,7 +37,7 @@ export class ArmBatchResponseRule implements SanitizationRule {
 
     sanitize(requestEntry: Entry): void {
         const { request, response } = requestEntry;
-        if(!request.postData?.text){
+        if (!request.postData?.text) {
             return;
         }
 
@@ -51,15 +51,7 @@ export class ArmBatchResponseRule implements SanitizationRule {
                 const batchRequest = uberBatchRequest.requests[i];
                 const batchResponse = uberBatchResponse.responses[i];
 
-                if (batchRequest.httpMethod !== 'POST') {
-                    try {
-                        cleanProperties(batchResponse.content, this.getName());
-                    } catch (e) {
-                        // The response could be non-json.  Since it's not a POST request we are more lenient
-                        // to assume that there aren't secrets being returned.
-                        console.log('Failed to clean Non-POST batch response');
-                    }
-                } else {
+                if (batchRequest.httpMethod === 'POST' && batchResponse.httpStatusCode >= 200 && batchResponse.httpStatusCode < 300) {
                     try {
                         cleanProperties(batchResponse.content, this.getName(), true /* cleanAllProperties */);
                     } catch (e) {
@@ -67,6 +59,14 @@ export class ArmBatchResponseRule implements SanitizationRule {
 
                         // If the response is non-json, then we err on the side of caution and redact the entire response.
                         batchResponse.content.text = REDACTED;
+                    }
+                } else {
+                    try {
+                        cleanProperties(batchResponse.content, this.getName());
+                    } catch (e) {
+                        // The response could be non-json.  Since it's not a POST request we are more lenient
+                        // to assume that there aren't secrets being returned.
+                        console.log('Failed to clean Non-POST batch response');
                     }
                 }
             }
