@@ -1,4 +1,4 @@
-import { Entry, HarFile } from "./models/harFile";
+import { HarFile } from "./models/harFile";
 import { ArmBatchResponseRule } from "./requestRules/armBatchResponseRule";
 import { ArmPostResponseRule } from "./requestRules/armPostResponseRule";
 import { AuthorizationRequestRule } from "./requestRules/authorizationRule";
