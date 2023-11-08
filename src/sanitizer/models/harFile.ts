@@ -41,3 +41,14 @@ export interface Content{
     mimeType: string;
     text: string;
 }
+
+export interface Cookie{
+    name: string;
+    value: string;
+    path: string;
+    domain: string;
+    expires: Date;
+    httpOnly: boolean;
+    secure: boolean;
+    sameSite?: string;
+}

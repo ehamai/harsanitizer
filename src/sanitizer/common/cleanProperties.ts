@@ -1,5 +1,4 @@
-import { REDACTED } from "../sanitizer";
-import { keywords } from "./constants";
+import { REDACTED, dangerousKeywords } from "./constants";
 
 // Recursively redacts all string properties which have a keywords in the name
 // If cleanAllProperties is true, then will clean all string properties found
@@ -24,7 +23,7 @@ export const cleanProperties = (obj: any, callingRule: string, cleanAllPropertie
                 console.log(`[${callingRule}] Redacting value of property: ${key}`);
                 obj[key] = REDACTED;
             } else{
-                for(const keyword of keywords){
+                for(const keyword of dangerousKeywords){
                     if(key.toLowerCase().indexOf(keyword.toLowerCase()) > -1){
                         console.log(`[${callingRule}] Redacting value of property: ${key}`);
                         obj[key] = REDACTED;

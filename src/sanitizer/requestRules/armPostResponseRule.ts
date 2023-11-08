@@ -1,7 +1,6 @@
 import { cleanProperties } from "../common/cleanProperties";
-import { MimeType } from "../common/constants";
+import { MimeType, REDACTED } from "../common/constants";
 import { Entry } from "../models/harFile";
-import { REDACTED } from "../sanitizer";
 import { SanitizationRule } from "./sanitizationRule";
 
 export const armHostnamesLowerCase = [

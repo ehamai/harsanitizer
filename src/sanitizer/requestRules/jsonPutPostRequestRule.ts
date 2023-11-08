@@ -3,7 +3,7 @@ import { MimeType } from "../common/constants";
 import { Entry } from "../models/harFile";
 import { SanitizationRule } from "./sanitizationRule";
 
-// Makes a best effort to clean keyword properties from request bodies
+// Makes a best effort to clean dangerous keyword properties from request bodies
 export class JSONPutPostRequestRule implements SanitizationRule {
     getName(): string {
         return 'JSONPutPostRequestRule';

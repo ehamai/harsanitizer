@@ -3,7 +3,7 @@ export class MimeType{
     public static readonly xml = 'application/xml';
 }
 
-export const keywords: string[] = [
+export const dangerousKeywords: string[] = [
     'secret',
     'password',
     'pwd',
@@ -13,3 +13,5 @@ export const keywords: string[] = [
     'credential',
     'cookie'
 ];
+
+export const REDACTED = '___REDACTED___';

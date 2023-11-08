@@ -1,5 +1,5 @@
+import { REDACTED } from "../common/constants";
 import { Entry } from "../models/harFile";
-import { REDACTED } from "../sanitizer";
 import { SanitizationRule } from "./sanitizationRule";
 
 const bearerRegex = /Bearer [a-zA-Z0-9.\-_]+/gm;

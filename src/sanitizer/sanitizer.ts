@@ -7,8 +7,6 @@ import { JSONPutPostRequestRule } from "./requestRules/jsonPutPostRequestRule";
 import { JSONResponseRule } from "./requestRules/jsonResponseRule";
 import { SanitizationRule } from "./requestRules/sanitizationRule";
 
-export const REDACTED = '___REDACTED___';
-
 const sanitizationRules: SanitizationRule[] = [
     new CookiesAndHeadersRule(),
     new AuthorizationRequestRule(),

@@ -1,6 +1,5 @@
-import { keywords } from "../common/constants";
+import { REDACTED, dangerousKeywords } from "../common/constants";
 import { Cookie, Entry, NameValueKeyPair } from "../models/harFile";
-import { REDACTED } from "../sanitizer";
 import { SanitizationRule } from "./sanitizationRule";
 
 export class CookiesAndHeadersRule implements SanitizationRule{
@@ -24,6 +23,7 @@ export class CookiesAndHeadersRule implements SanitizationRule{
 
     private _cleanHeaders(headers: NameValueKeyPair[]){
         if(headers){
+            const keywords = [...dangerousKeywords, 'cookie', 'set-cookie']
             for(const header of headers){
                 for(const keyword of keywords){
                     if(header.name.toLowerCase().indexOf(keyword) > -1){

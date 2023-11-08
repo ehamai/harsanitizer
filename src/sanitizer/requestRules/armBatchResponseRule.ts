@@ -1,8 +1,7 @@
 import { cleanProperties } from "../common/cleanProperties";
 import { Entry } from "../models/harFile";
-import { REDACTED } from "../sanitizer";
 import { armHostnamesLowerCase } from "./armPostResponseRule";
-import { MimeType } from "../common/constants";
+import { MimeType, REDACTED } from "../common/constants";
 import { UberBatchRequest, UberBatchResponse } from "../models/batchRequest";
 import { SanitizationRule } from "./sanitizationRule";
 
@@ -41,37 +40,35 @@ export class ArmBatchResponseRule implements SanitizationRule {
             return;
         }
 
-        if (response.content.mimeType !== MimeType.json) {
-            response.content.text = REDACTED;
-        } else {
-            const uberBatchRequest: UberBatchRequest = JSON.parse(request.postData.text);
-            const uberBatchResponse: UberBatchResponse = JSON.parse(response.content.text);
+        const uberBatchRequest: UberBatchRequest = JSON.parse(request.postData.text);
+        const uberBatchResponse: UberBatchResponse = JSON.parse(response.content.text);
 
-            for (let i = 0; i < uberBatchRequest.requests.length; i++) {
-                const batchRequest = uberBatchRequest.requests[i];
-                const batchResponse = uberBatchResponse.responses[i];
+        for (let i = 0; i < uberBatchRequest.requests.length; i++) {
+            const batchRequest = uberBatchRequest.requests[i];
+            const batchResponse = uberBatchResponse.responses[i];
 
-                if (batchRequest.httpMethod === 'POST' && batchResponse.httpStatusCode >= 200 && batchResponse.httpStatusCode < 300) {
-                    try {
-                        cleanProperties(batchResponse.content, this.getName(), true /* cleanAllProperties */);
-                    } catch (e) {
-                        console.log('Failed to clean POST batch response. Redacting entire response');
-
-                        // If the response is non-json, then we err on the side of caution and redact the entire response.
-                        batchResponse.content.text = REDACTED;
-                    }
-                } else {
-                    try {
-                        cleanProperties(batchResponse.content, this.getName());
-                    } catch (e) {
-                        // The response could be non-json.  Since it's not a POST request we are more lenient
-                        // to assume that there aren't secrets being returned.
-                        console.log('Failed to clean Non-POST batch response');
-                    }
-                }
+            if (batchResponse.httpStatusCode < 200 || batchResponse.httpStatusCode >= 300) {
+                continue;
             }
 
-            response.content.text = JSON.stringify(uberBatchResponse);
+            if (typeof batchResponse.content === 'object') {
+                try {
+                    // If the request is a POST request, then we redact all JSON properties from the response
+                    // If it's not a POST request, then we just redact special keyword properties
+                    cleanProperties(batchResponse.content, this.getName(), batchRequest.httpMethod === 'POST' /* cleanAllProperties */);
+                } catch (e) {
+                    console.log('Failed to clean POST batch response. Redacting entire response');
+
+                    // We err on the side of caution and redact the entire response.
+                    batchResponse.content = REDACTED;
+                }
+            } else{
+                // If we can't parse the content then we redact the whole thing to be safe
+                batchResponse.content = REDACTED;
+            }
         }
+
+        response.content.text = JSON.stringify(uberBatchResponse);
+
     }
 }
