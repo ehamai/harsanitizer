@@ -1,7 +1,7 @@
 import { cleanProperties } from "../common/cleanProperties";
 import { Entry } from "../models/harFile";
 import { armHostnamesLowerCase } from "./armPostResponseRule";
-import { MimeType, REDACTED } from "../common/constants";
+import { REDACTED } from "../common/constants";
 import { UberBatchRequest, UberBatchResponse } from "../models/batchRequest";
 import { SanitizationRule } from "./sanitizationRule";
 
