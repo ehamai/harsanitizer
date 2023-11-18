@@ -4,7 +4,7 @@ import { SanitizationRule } from "./sanitizationRule";
 
 export class CookiesAndHeadersRule implements SanitizationRule{
     getName(): string {
-        return 'CookiesAndHeadersRule';
+        return 'cookiesAndHeadersRule';
     }
 
     isApplicable(requestEntry: Entry): boolean {

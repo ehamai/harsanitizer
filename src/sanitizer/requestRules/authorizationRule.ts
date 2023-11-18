@@ -7,7 +7,7 @@ const bearerRegex = /Bearer [a-zA-Z0-9.\-_]+/gm;
 // Clear out all authorization headers and bearer tokens
 export class AuthorizationRequestRule implements SanitizationRule {
     getName(): string {
-        return 'AuthorizationRequestRule';
+        return 'authorizationRequestRule';
     }
 
     isApplicable(requestEntry: Entry): boolean {

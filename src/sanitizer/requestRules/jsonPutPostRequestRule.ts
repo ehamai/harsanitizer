@@ -6,7 +6,7 @@ import { SanitizationRule } from "./sanitizationRule";
 // Makes a best effort to clean dangerous keyword properties from request bodies
 export class JSONPutPostRequestRule implements SanitizationRule {
     getName(): string {
-        return 'JSONPutPostRequestRule';
+        return 'jsonPutPostRequestRule';
     }
 
     isApplicable(requestEntry: Entry): boolean {

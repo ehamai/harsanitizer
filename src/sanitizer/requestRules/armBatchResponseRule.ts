@@ -5,7 +5,7 @@ import { REDACTED } from "../common/constants";
 import { UberBatchRequest, UberBatchResponse } from "../models/batchRequest";
 import { SanitizationRule } from "./sanitizationRule";
 
-// Redacts entire response for POST BATCH reqeusts
+// Redacts entire response for POST BATCH requests
 // Only redacts keyword properties for non-POST BATCH responses
 export class ArmBatchResponseRule implements SanitizationRule {
     getName(): string {

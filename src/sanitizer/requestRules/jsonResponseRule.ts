@@ -9,7 +9,7 @@ import { SanitizationRule } from "./sanitizationRule";
 // and to non-ARM endpoints.
 export class JSONResponseRule implements SanitizationRule {
     getName(): string {
-        return 'JSONResponseRule';
+        return 'jsonResponseRule';
     }
 
     isApplicable(requestEntry: Entry): boolean {

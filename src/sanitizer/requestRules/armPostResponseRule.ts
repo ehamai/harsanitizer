@@ -13,7 +13,7 @@ export const armHostnamesLowerCase = [
 // sanitize all value data within a response.
 export class ArmPostResponseRule implements SanitizationRule {
     getName() {
-        return 'ArmPostResponseRule';
+        return 'armPostResponseRule';
     }
 
     isApplicable(requestEntry: Entry): boolean {
