@@ -24,6 +24,7 @@ const containerStyle: React.CSSProperties = {
 const radioButtonStackStyle: IStackStyles = {
   root: {
     width: `${checkboxWidth * 2 + 20}px`,
+    marginTop: '20px'
   },
 };
 
@@ -120,6 +121,7 @@ function App() {
       <Stack enableScopedSelectors horizontalAlign="center" verticalAlign='center' style={layoutStackStyle}>
         <Text variant='xxLarge' style={{ position: 'relative', left: '-345px', marginBottom: '10px' }}>HAR Sanitizer</Text>
         <div style={containerStyle}>
+          <Text variant='mediumPlus'>Choose categories to sanitize and then upload a file</Text>
           <Stack tokens={stackTokens} styles={radioButtonStackStyle} horizontal wrap>
             <Checkbox
               label="Cookies and headers"
