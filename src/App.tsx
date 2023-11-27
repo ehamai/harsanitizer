@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from 'react';
+import React, { FormEvent, useEffect, useState } from 'react';
 import { SanitizationCategories, sanitize } from './sanitizer/sanitizer';
 import { HarFile } from './sanitizer/models/harFile';
 import { Link, Checkbox, Stack, ICheckboxStyles, IStackStyles, Text } from '@fluentui/react';
@@ -37,6 +37,8 @@ const stackTokens = {
   childrenGap: 10
 };
 
+const title = 'HAR file sanitizer (preview)';
+
 function App() {
   const [downloadUrl, setDownloadUrl] = useState('');
   const [fileName, setFileName] = useState('');
@@ -47,6 +49,10 @@ function App() {
     generalJsonResponses: true,
     generalJsonPutPostRequests: true
   });
+
+  useEffect(() =>{
+    document.title = title;
+  }, [])
 
   const readFileContent = (file: File) => {
     const reader = new FileReader()
@@ -119,7 +125,7 @@ function App() {
   return (
     <div>
       <Stack enableScopedSelectors horizontalAlign="center" verticalAlign='center' style={layoutStackStyle}>
-        <Text variant='xxLarge' style={{ position: 'relative', left: '-345px', marginBottom: '10px' }}>HAR Sanitizer</Text>
+        <Text variant='xxLarge' style={{ position: 'relative', left: '-263px', marginBottom: '10px' }}>{title}</Text>
         <div style={containerStyle}>
           <Text variant='mediumPlus'>Choose categories to sanitize and then upload a file</Text>
           <Stack tokens={stackTokens} styles={radioButtonStackStyle} horizontal wrap>
