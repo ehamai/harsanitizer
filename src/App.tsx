@@ -124,6 +124,7 @@ function App() {
 
   return (
     <div>
+      <Stack horizontalAlign="end"><Link href='https://github.com/ehamai/harsanitizer/issues' target='_blank'>Log issues</Link></Stack>
       <Stack enableScopedSelectors horizontalAlign="center" verticalAlign='center' style={layoutStackStyle}>
         <Text variant='xxLarge' style={{ position: 'relative', left: '-263px', marginBottom: '10px' }}>{title}</Text>
         <div style={containerStyle}>
