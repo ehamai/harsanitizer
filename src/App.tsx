@@ -1,37 +1,8 @@
-import React, { FormEvent, useEffect, useState } from 'react';
-import { SanitizationCategories, sanitize } from './sanitizer/sanitizer';
-import { HarFile } from './sanitizer/models/harFile';
-import { Link, Checkbox, Stack, ICheckboxStyles, IStackStyles, Text } from '@fluentui/react';
-
-const checkboxWidth = 300;
-
-const checkboxStyle: ICheckboxStyles = {
-  label: {
-    width: `${checkboxWidth}px`
-  }
-}
-
-const layoutStackStyle: React.CSSProperties = {
-  marginTop: '300px'
-}
-
-const containerStyle: React.CSSProperties = {
-  border: '1px solid lightgray',
-  padding: '50px 130px',
-  borderRadius: '10px'
-}
-
-const radioButtonStackStyle: IStackStyles = {
-  root: {
-    width: `${checkboxWidth * 2 + 20}px`,
-    marginTop: '20px'
-  },
-};
-
-const fileUploadStyle: React.CSSProperties = {
-  marginTop: '50px',
-  display: 'inline-block'
-}
+import { FormEvent, useEffect, useState } from 'react';
+import { SanitizationCategories,  } from './sanitizer/sanitizer';
+import { Link, Checkbox, Stack, Text } from '@fluentui/react';
+import { onFileUpload } from './common/fileUpload';
+import { checkboxStyle, containerStyle, fileUploadStyle, layoutStackStyle, logIssueLinkeStyle, radioButtonStackStyle } from './App.styles';
 
 const stackTokens = {
   childrenGap: 10
@@ -50,56 +21,9 @@ function App() {
     generalJsonPutPostRequests: true
   });
 
-  useEffect(() =>{
+  useEffect(() => {
     document.title = title;
   }, [])
-
-  const readFileContent = (file: File) => {
-    const reader = new FileReader()
-    return new Promise<string>((resolve, reject) => {
-      reader.onload = event => {
-        let content = event.target && event.target.result as string;
-        if (!content) {
-          content = '{}';
-        }
-        resolve(content);
-      }
-      reader.onerror = error => reject(error)
-      reader.readAsText(file)
-    })
-  }
-
-  const onFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const input = event.target
-    if (input.files && input.files.length > 0) {
-      setFileName(input.files[0].name);
-      readFileContent(input.files[0]).then(content => {
-        try {
-          const parsedContent = JSON.parse(content) as HarFile;
-          sanitize(parsedContent, sanitizationCategories);
-
-          console.log(parsedContent);
-          const blob = new Blob([JSON.stringify(parsedContent)], {
-            type: "application/json",
-          });
-          const url = URL.createObjectURL(blob);
-          console.log(url);
-          setDownloadUrl(url);
-        } catch (e) {
-          console.log('Failed to parse file');
-        }
-      }).catch(error => console.log(error))
-    }
-  }
-
-  const getOutputFileName = (inputFileName: string) => {
-    const parts = inputFileName.split('.har');
-    if (parts.length === 2) {
-      return `${parts[0]}.sanitized.har`;
-    }
-
-    return 'sanitized.har';
-  }
 
   const onChecked = (event: FormEvent<HTMLInputElement | HTMLElement> | undefined, checked?: boolean | undefined) => {
     if (event) {
@@ -115,16 +39,16 @@ function App() {
 
   let downloadButton = <></>;
   if (downloadUrl) {
-    const outputFileName = getOutputFileName(fileName);
     downloadButton = <div style={{ marginTop: '10px' }}>
-        Download <Link href={downloadUrl} download={outputFileName}> {outputFileName}</Link>
+      Download <Link href={downloadUrl} download={fileName}> {fileName}</Link>
     </div>;
   }
 
-
   return (
     <div>
-      <Stack horizontalAlign="end"><Link href='https://github.com/ehamai/harsanitizer/issues' target='_blank'>Log issues</Link></Stack>
+      <Stack horizontalAlign="end" horizontal>
+        <Link href='https://github.com/ehamai/harsanitizer/issues' target='_blank' style={logIssueLinkeStyle}>Log issues</Link>
+      </Stack>
       <Stack enableScopedSelectors horizontalAlign="center" verticalAlign='center' style={layoutStackStyle}>
         <Text variant='xxLarge' style={{ position: 'relative', left: '-263px', marginBottom: '10px' }}>{title}</Text>
         <div style={containerStyle}>
@@ -167,7 +91,7 @@ function App() {
           </Stack>
           <div>
             <Text>
-              <input type="file" id="input-file" onChange={onFileUpload} style={fileUploadStyle} />
+              <input type="file" id="input-file" onChange={(event) =>{ onFileUpload(event, sanitizationCategories, setFileName, setDownloadUrl) }} style={fileUploadStyle} />
               {downloadButton}
             </Text>
           </div>
