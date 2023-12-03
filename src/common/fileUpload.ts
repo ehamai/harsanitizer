@@ -42,7 +42,7 @@ export const onFileUpload = async (event: React.ChangeEvent<HTMLInputElement>,
             sanitize(parsedContent, sanitizationCategories);
 
             const zip = new JSZip();
-            zip.file(`${fileNamePrefix}.har`, content);
+            zip.file(`${fileNamePrefix}.har`, JSON.stringify(parsedContent));
             const blob = await zip.generateAsync({
                 type: 'blob',
                 compression: 'DEFLATE',
@@ -55,7 +55,7 @@ export const onFileUpload = async (event: React.ChangeEvent<HTMLInputElement>,
             console.log(url);
             setDownloadUrl(url);
         } catch (e) {
-            console.log('Failed to parse file');
+            console.log(`Failed to parse and zip file: ${e}`);
         }
     }
 }
