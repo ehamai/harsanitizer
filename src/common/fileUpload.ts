@@ -29,7 +29,8 @@ export const getOutputFileNamePrefix = (inputFileName: string) => {
 export const onFileUpload = async (event: React.ChangeEvent<HTMLInputElement>,
     sanitizationCategories: SanitizationCategories,
     setFileName: React.Dispatch<React.SetStateAction<string>>,
-    setDownloadUrl: React.Dispatch<React.SetStateAction<string>>) => {
+    setDownloadUrl: React.Dispatch<React.SetStateAction<string>>,
+    setSanitizedFileJson: React.Dispatch<React.SetStateAction<HarFile | null>>) => {
 
     const input = event.target
     if (input.files && input.files.length > 0) {
@@ -40,6 +41,7 @@ export const onFileUpload = async (event: React.ChangeEvent<HTMLInputElement>,
             const content = await readFileContent(input.files[0])
             const parsedContent = JSON.parse(content) as HarFile;
             sanitize(parsedContent, sanitizationCategories);
+            setSanitizedFileJson(parsedContent)
 
             const zip = new JSZip();
             zip.file(`${fileNamePrefix}.har`, JSON.stringify(parsedContent));

@@ -3,6 +3,8 @@ import { SanitizationCategories,  } from './sanitizer/sanitizer';
 import { Link, Checkbox, Stack, Text } from '@fluentui/react';
 import { onFileUpload } from './common/fileUpload';
 import { checkboxStyle, containerStyle, fileUploadStyle, layoutStackStyle, logIssueLinkeStyle, radioButtonStackStyle } from './App.styles';
+import { TraceInspector } from './components/TraceInspector';
+import { HarFile } from './sanitizer/models/harFile';
 
 const stackTokens = {
   childrenGap: 10
@@ -13,6 +15,8 @@ const title = 'HAR file sanitizer (preview)';
 function App() {
   const [downloadUrl, setDownloadUrl] = useState('');
   const [fileName, setFileName] = useState('');
+  const [inspectFile, setInspectFile] = useState(false);
+  const [sanitizedFileJson, setSanitizedFileJson] = useState<HarFile | null>(null);
   const [sanitizationCategories, setSanitizationCategories] = useState<SanitizationCategories>({
     cookiesAndHeaders: true,
     authorizationTokens: true,
@@ -40,11 +44,14 @@ function App() {
   let downloadButton = <></>;
   if (downloadUrl) {
     downloadButton = <div style={{ marginTop: '10px' }}>
-      Download <Link href={downloadUrl} download={fileName}> {fileName}</Link>
+      Download <Link href={downloadUrl} download={fileName}> {fileName}</Link> or <Link onClick={() => {setInspectFile(true)}}>Inspect</Link>
     </div>;
   }
 
   return (
+    inspectFile ? (
+      <TraceInspector fileContent={sanitizedFileJson as HarFile}></TraceInspector>
+    ) : (
     <div>
       <Stack horizontalAlign="end" horizontal>
         <Link href='https://github.com/ehamai/harsanitizer/issues' target='_blank' style={logIssueLinkeStyle}>Log issues</Link>
@@ -91,13 +98,13 @@ function App() {
           </Stack>
           <div>
             <Text>
-              <input type="file" id="input-file" onChange={(event) =>{ onFileUpload(event, sanitizationCategories, setFileName, setDownloadUrl) }} style={fileUploadStyle} />
+              <input type="file" id="input-file" onChange={(event) =>{ onFileUpload(event, sanitizationCategories, setFileName, setDownloadUrl, setSanitizedFileJson) }} style={fileUploadStyle} />
               {downloadButton}
             </Text>
           </div>
         </div>
       </Stack>
-    </div>
+    </div>)
   );
 }
 
