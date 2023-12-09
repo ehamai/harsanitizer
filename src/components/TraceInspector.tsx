@@ -1,8 +1,10 @@
-import { DetailsList, DetailsListLayoutMode, DetailsRow, IColumn, IDetailsRowProps, IDetailsRowStyles } from "@fluentui/react";
+import { DetailsList, DetailsListLayoutMode, DetailsRow, IColumn, IDetailsRowProps, IDetailsRowStyles, Link, Panel, PanelType } from "@fluentui/react";
 import { Entry, HarFile } from "../sanitizer/models/harFile";
 import { Text } from '@fluentui/react';
 import { convertBatchEntryToEntries as convertBatchRequestsToEntries } from "../common/batchConverter";
 import { getTheme } from '@fluentui/react/lib/Styling';
+import { useState } from "react";
+import { RequestPanel } from "./RequestPanel";
 
 export interface TraceInspectorProps {
     fileContent: HarFile
@@ -14,19 +16,25 @@ export interface InspectorEntry extends Entry {
 
 const theme = getTheme();
 
-const getTextStyle = (statusCode: number): React.CSSProperties => {
-    if(statusCode >= 400){
-        return {
-            color: theme.palette.redDark
-        }
+export const getStatusCodeColor = (statusCode: number) => {
+    if (statusCode >= 400 && statusCode < 500) {
+        return theme.palette.orange;
+    } else if(statusCode >= 500){
+        return theme.palette.redDark;
     }
 
-    return {};
+    return theme.palette.black;
 }
 
+const getRequestStyle = (statusCode: number): React.CSSProperties =>{
+    return { color: getStatusCodeColor(statusCode) };
+
+}
 
 export function TraceInspector(props: TraceInspectorProps) {
     const fileContent = props.fileContent;
+    // const [isOpen, { setTrue: openPanel, setFalse: dismissPanel }] = useBoolean(false);
+    const [selectedEntry, setSelectedEntry] = useState<InspectorEntry | null>(null);
     // const entries = [...fileContent.log.entries];
 
     const entries: InspectorEntry[] = [];
@@ -41,42 +49,46 @@ export function TraceInspector(props: TraceInspectorProps) {
 
     const onRenderMethodCol = (item?: InspectorEntry, index?: number, column?: IColumn) => {
         if (item) {
-            return <Text style={getTextStyle(item.response.status)}>{item.request.method}</Text>
+            return <Text style={getRequestStyle(item.response.status)}>{item.request.method}</Text>
         }
     };
 
     const onRenderUrlCol = (item?: InspectorEntry, index?: number, column?: IColumn) => {
         if (item) {
-            if(item.isBatchChildEntry){
-                return <Text style={getTextStyle(item.response.status)}>&nbsp;&nbsp;&nbsp;&nbsp;- {item.request.url}</Text>
+            if (item.isBatchChildEntry) {
+                return <Link onClick={() =>{ setSelectedEntry(item)}} style={getRequestStyle(item.response.status)}>&nbsp;&nbsp;&nbsp;&nbsp;- {item.request.url}</Link>
             }
-            
-            return <Text style={getTextStyle(item.response.status)}>{item.request.url}</Text>
+
+            return <Link onClick={() =>{ setSelectedEntry(item)}} style={getRequestStyle(item.response.status)}>{item.request.url}</Link>
         }
     };
 
     const onRenderStatus = (item?: InspectorEntry, index?: number, column?: IColumn) => {
         if (item) {
-            return <Text style={getTextStyle(item.response.status)}>{item.response.status}</Text>
+            return <Text style={getRequestStyle(item.response.status)}>{item.response.status}</Text>
         }
     };
 
     const onRenderDuration = (item?: InspectorEntry, index?: number, column?: IColumn) => {
         if (item) {
-            return <Text style={getTextStyle(item.response.status)}>{Math.round(item.time)}</Text>
+            return <Text style={getRequestStyle(item.response.status)}>{Math.round(item.time)}</Text>
         }
     };
 
-    const onRenderRow = (props: IDetailsRowProps | undefined) =>{
+    const onRenderRow = (props: IDetailsRowProps | undefined) => {
         const customStyles: Partial<IDetailsRowStyles> = {};
-    if (props) {
-      if (props.itemIndex % 2 === 0) {
-        customStyles.root = { backgroundColor: theme.palette.themeLighterAlt };
-      }
+        if (props) {
+            if (props.itemIndex % 2 === 0) {
+                customStyles.root = { backgroundColor: theme.palette.themeLighterAlt };
+            }
 
-      return <DetailsRow {...props} styles={customStyles} />;
+            return <DetailsRow {...props} styles={customStyles} />;
+        }
+        return null;
     }
-    return null;
+
+    const dismissPanel = () =>{
+        setSelectedEntry(null);
     }
 
     const columns: IColumn[] = [{
@@ -108,20 +120,23 @@ export function TraceInspector(props: TraceInspectorProps) {
         isResizable: false
     }];
 
-    return <DetailsList
-        items={entries}
-        columns={columns}
-        setKey="set"
-        compact={true}
-        layoutMode={DetailsListLayoutMode.fixedColumns}
-        onRenderRow={onRenderRow}
-        // selection={this._selection}
-        // selectionPreservedOnEmptyClick={true}
-        ariaLabelForSelectionColumn="Toggle selection"
-        ariaLabelForSelectAllCheckbox="Toggle selection for all items"
-        checkButtonAriaLabel="select row"
-    // onItemInvoked={this._onItemInvoked}
-    />
+    return <>
+        <DetailsList
+            items={entries}
+            columns={columns}
+            setKey="set"
+            compact={true}
+            layoutMode={DetailsListLayoutMode.fixedColumns}
+            onRenderRow={onRenderRow}
+            // selection={this._selection}
+            // selectionPreservedOnEmptyClick={true}
+            ariaLabelForSelectionColumn="Toggle selection"
+            ariaLabelForSelectAllCheckbox="Toggle selection for all items"
+            checkButtonAriaLabel="select row"
+        // onItemInvoked={this._onItemInvoked}
+        />
+        <RequestPanel entry={selectedEntry} dismissPanel={dismissPanel}></RequestPanel>
+    </>
 
     // return <h1>trace inspector</h1>;
 }
