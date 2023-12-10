@@ -11,7 +11,7 @@ import { InspectorEntry, getStatusCodeColor } from "./TraceInspector";
 import { getTabContainerItem, getTabContainerItemStretchVertical } from "./RequestPanel.styles";
 import { NameValueList } from "../NameValueList";
 
-export interface HeaderTabProps {
+export interface HeadersTabProps {
     entry: InspectorEntry,
     isResponseHeaders: boolean;
 }
@@ -41,25 +41,27 @@ const getStatusCodeStyle = (statusCode: number) => {
     }
 }
 
-export const HeadersTab = (props: HeaderTabProps) => {
+export const HeadersTab = (props: HeadersTabProps) => {
     const { isResponseHeaders } = props;
     const { request, response } = props.entry;
 
-    // const headers = request.headers;
-    const headers = [];
-    for (let i = 0; i < 100; i++) {
-        headers.push({
-            name: `name ${i}`,
-            value: `value ${i}`
-        })
-    }
+    const headers = request.headers;
+
+    // Test parameters
+    // const headers = [];
+    // for (let i = 0; i < 100; i++) {
+    //     headers.push({
+    //         name: `name ${i}`,
+    //         value: `value ${i}`
+    //     })
+    // }
 
     const addressComponent = isResponseHeaders
         ? <></>
         : <div style={getTabContainerItem()}>
             <Stack horizontal tokens={{ childrenGap: '10px' }} >
                 <StackItem grow={1}><Label style={{ marginLeft: '10px' }}>{request.method}</Label></StackItem>
-                <StackItem grow={100}><TextField defaultValue={request.url} readOnly styles={urlTextboxStyles}></TextField></StackItem>
+                <StackItem grow={100}><TextField value={request.url} readOnly styles={urlTextboxStyles}></TextField></StackItem>
                 <StackItem grow={1}><Label style={getStatusCodeStyle(response.status)}>{response.status}</Label></StackItem>
             </Stack>
         </div>

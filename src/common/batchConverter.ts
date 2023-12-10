@@ -24,7 +24,7 @@ export const convertBatchEntryToEntries = (entry: Entry, entries: InspectorEntry
             const batchRequest = uberBatchRequest.requests[i];
             const batchResponse = uberBatchResponse.responses[i];
             let url = batchRequest.url;
-            if(url.startsWith('https://')){
+            if(url.startsWith('http')){
                 const parsedUrl = new URL(url);
                 url = url.split(parsedUrl.origin)[1];   // keep path + query string
             }

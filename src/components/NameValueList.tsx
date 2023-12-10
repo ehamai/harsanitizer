@@ -16,7 +16,7 @@ const getNameValueContainerStyle = (): React.CSSProperties =>{
 const lineHeight = '25px'
 const getNameStyle =(): React.CSSProperties =>{
     return { 
-        width: '150px', 
+        minWidth: '150px',
         overflow: 'hidden', 
         textOverflow: 'ellipsis', 
         whiteSpace: 'nowrap', 

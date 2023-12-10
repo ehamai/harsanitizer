@@ -2,6 +2,7 @@ import { Label, Panel, PanelType, Pivot, PivotItem } from "@fluentui/react";
 import { InspectorEntry } from "./TraceInspector";
 import { HeadersTab } from "./HeadersTab";
 import { getTabContainerStyle } from "./RequestPanel.styles";
+import { ParametersTab } from "./ParametersTab";
 
 export interface RequestPanelProps {
     entry: InspectorEntry | null;
@@ -37,9 +38,9 @@ export const RequestPanel = (props: RequestPanelProps) => {
                     <HeadersTab entry={entry} isResponseHeaders={false}></HeadersTab>
                 </div>
             </PivotItem>
-            <PivotItem headerText="Parameters">
+            <PivotItem headerText="Query Parameters">
                 <div style={getTabContainerStyle()}>
-                    <Label>Pivot #2</Label>
+                    <ParametersTab url={entry.request.url}></ParametersTab>
                 </div>
             </PivotItem>
             <PivotItem headerText="Body">
@@ -52,11 +53,6 @@ export const RequestPanel = (props: RequestPanelProps) => {
             <PivotItem headerText="Response Headers">
                 <div style={getTabContainerStyle()}>
                     <HeadersTab entry={entry} isResponseHeaders={true}></HeadersTab>
-                </div>
-            </PivotItem>
-            <PivotItem headerText="Parameters">
-                <div style={getTabContainerStyle()}>
-                    <Label>Pivot #2</Label>
                 </div>
             </PivotItem>
             <PivotItem headerText="Body">

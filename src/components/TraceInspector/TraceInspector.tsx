@@ -1,4 +1,4 @@
-import { DetailsList, DetailsListLayoutMode, DetailsRow, IColumn, IDetailsRowProps, IDetailsRowStyles, Link, Panel, PanelType } from "@fluentui/react";
+import { DetailsList, DetailsListLayoutMode, DetailsRow, IColumn, IDetailsRowProps, IDetailsRowStyles, Link } from "@fluentui/react";
 import { Entry, HarFile } from "../../sanitizer/models/harFile";
 import { Text } from '@fluentui/react';
 import { convertBatchEntryToEntries as convertBatchRequestsToEntries } from "../../common/batchConverter";
@@ -33,9 +33,7 @@ const getRequestStyle = (statusCode: number): React.CSSProperties =>{
 
 export function TraceInspector(props: TraceInspectorProps) {
     const fileContent = props.fileContent;
-    // const [isOpen, { setTrue: openPanel, setFalse: dismissPanel }] = useBoolean(false);
     const [selectedEntry, setSelectedEntry] = useState<InspectorEntry | null>(null);
-    // const entries = [...fileContent.log.entries];
 
     const entries: InspectorEntry[] = [];
     for (const entry of fileContent.log.entries) {
