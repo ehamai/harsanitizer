@@ -1,6 +1,7 @@
 import { Label, Panel, PanelType, Pivot, PivotItem } from "@fluentui/react";
 import { InspectorEntry } from "./TraceInspector";
-import { RequestHeaders } from "./RequestHeaders";
+import { HeadersTab } from "./HeadersTab";
+import { getTabContainerStyle } from "./RequestPanel.styles";
 
 export interface RequestPanelProps {
     entry: InspectorEntry | null;
@@ -22,7 +23,6 @@ export const RequestPanel = (props: RequestPanelProps) => {
         url = url.split('?')[0];
     }
 
-
     return <Panel
         isOpen={!!entry}
         onDismiss={dismissPanel}
@@ -31,27 +31,38 @@ export const RequestPanel = (props: RequestPanelProps) => {
         isBlocking={false}
         closeButtonAriaLabel="Close"
     >
-        {/* <div style={{ height: 'calc(50vh - 50px)' }}> */}
         <Pivot>
             <PivotItem headerText="Request Headers">
-                <RequestHeaders entry={entry} isResponseHeaders={false}></RequestHeaders>
+                <div style={getTabContainerStyle()}>
+                    <HeadersTab entry={entry} isResponseHeaders={false}></HeadersTab>
+                </div>
             </PivotItem>
             <PivotItem headerText="Parameters">
-                <Label>Pivot #2</Label>
+                <div style={getTabContainerStyle()}>
+                    <Label>Pivot #2</Label>
+                </div>
             </PivotItem>
             <PivotItem headerText="Body">
-                <Label>Pivot #3</Label>
+                <div style={getTabContainerStyle()}>
+                    <Label>Pivot #3</Label>
+                </div>
             </PivotItem>
         </Pivot>
         <Pivot>
             <PivotItem headerText="Response Headers">
-                <RequestHeaders entry={entry} isResponseHeaders={true}></RequestHeaders>
+                <div style={getTabContainerStyle()}>
+                    <HeadersTab entry={entry} isResponseHeaders={true}></HeadersTab>
+                </div>
             </PivotItem>
             <PivotItem headerText="Parameters">
-                <Label>Pivot #2</Label>
+                <div style={getTabContainerStyle()}>
+                    <Label>Pivot #2</Label>
+                </div>
             </PivotItem>
             <PivotItem headerText="Body">
-                <Label>Pivot #3</Label>
+                <div style={getTabContainerStyle()}>
+                    <Label>Pivot #3</Label>
+                </div>
             </PivotItem>
         </Pivot>
     </Panel>

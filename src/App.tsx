@@ -3,7 +3,7 @@ import { SanitizationCategories,  } from './sanitizer/sanitizer';
 import { Link, Checkbox, Stack, Text } from '@fluentui/react';
 import { onFileUpload } from './common/fileUpload';
 import { checkboxStyle, containerStyle, fileUploadStyle, layoutStackStyle, logIssueLinkeStyle, radioButtonStackStyle } from './App.styles';
-import { TraceInspector } from './components/TraceInspector';
+import { TraceInspector } from './components/TraceInspector/TraceInspector';
 import { HarFile } from './sanitizer/models/harFile';
 
 const stackTokens = {

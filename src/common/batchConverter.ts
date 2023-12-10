@@ -1,4 +1,4 @@
-import { InspectorEntry } from "../components/TraceInspector";
+import { InspectorEntry } from "../components/TraceInspector/TraceInspector";
 import { UberBatchRequest, UberBatchResponse } from "../sanitizer/models/batchRequest";
 import { Entry, NameValueKeyPair } from "../sanitizer/models/harFile";
 import { isBatchRequest } from "../sanitizer/requestRules/armBatchResponseRule";

@@ -1,7 +1,7 @@
 import { DetailsList, DetailsListLayoutMode, DetailsRow, IColumn, IDetailsRowProps, IDetailsRowStyles, Link, Panel, PanelType } from "@fluentui/react";
-import { Entry, HarFile } from "../sanitizer/models/harFile";
+import { Entry, HarFile } from "../../sanitizer/models/harFile";
 import { Text } from '@fluentui/react';
-import { convertBatchEntryToEntries as convertBatchRequestsToEntries } from "../common/batchConverter";
+import { convertBatchEntryToEntries as convertBatchRequestsToEntries } from "../../common/batchConverter";
 import { getTheme } from '@fluentui/react/lib/Styling';
 import { useState } from "react";
 import { RequestPanel } from "./RequestPanel";
