@@ -1,4 +1,4 @@
-import { Label, Panel, PanelType, Pivot, PivotItem } from "@fluentui/react";
+import { Panel, PanelType, Pivot, PivotItem } from "@fluentui/react";
 import { InspectorEntry } from "./TraceInspector";
 import { HeadersTab } from "./HeadersTab";
 import { getTabContainerStyle } from "./RequestPanel.styles";
