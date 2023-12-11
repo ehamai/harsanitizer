@@ -11,7 +11,7 @@ export const ParametersTab = (props: ParametersTabProps) =>{
     const parameters: NameValueKeyPair[] = [];
 
     // If this is a request within a batch request
-    if(!url.startsWith('/')){
+    if(url.startsWith('/')){
         url = `https://temp.com${url}`;
     }
 

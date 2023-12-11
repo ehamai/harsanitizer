@@ -6,7 +6,7 @@ export const getTabContainerStyle = (): React.CSSProperties => {
         padding: '10px 0px',
         display: 'flex',
         flexFlow: 'column',
-        height: 'calc(50vh - 75px)'
+        height: 'calc(50vh - 99px)'
     }
 }
 

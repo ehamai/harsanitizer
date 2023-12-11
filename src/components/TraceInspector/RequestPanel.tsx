@@ -3,6 +3,7 @@ import { InspectorEntry } from "./TraceInspector";
 import { HeadersTab } from "./HeadersTab";
 import { getTabContainerStyle } from "./RequestPanel.styles";
 import { ParametersTab } from "./ParametersTab";
+import { BodyTab } from "./BodyTab";
 
 export interface RequestPanelProps {
     entry: InspectorEntry | null;
@@ -45,7 +46,7 @@ export const RequestPanel = (props: RequestPanelProps) => {
             </PivotItem>
             <PivotItem headerText="Body">
                 <div style={getTabContainerStyle()}>
-                    <Label>Pivot #3</Label>
+                    <BodyTab entry={entry} isResponseBody={false}></BodyTab>
                 </div>
             </PivotItem>
         </Pivot>
@@ -57,7 +58,7 @@ export const RequestPanel = (props: RequestPanelProps) => {
             </PivotItem>
             <PivotItem headerText="Body">
                 <div style={getTabContainerStyle()}>
-                    <Label>Pivot #3</Label>
+                <BodyTab entry={entry} isResponseBody={true}></BodyTab>
                 </div>
             </PivotItem>
         </Pivot>
