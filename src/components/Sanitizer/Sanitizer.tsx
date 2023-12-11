@@ -1,5 +1,5 @@
 import { Checkbox, Link, Stack, Text } from "@fluentui/react"
-import { checkboxStyle, containerStyle, fileUploadStyle, layoutStackStyle, radioButtonStackStyle } from "./Sanitizer.styles"
+import { checkboxStyle, containerStyle, layoutStackStyle, radioButtonStackStyle } from "./Sanitizer.styles"
 import { FormEvent, useState } from "react";
 import { HarFile } from "../../sanitizer/models/harFile";
 import { SanitizationCategories } from "../../sanitizer/sanitizer";
@@ -41,11 +41,10 @@ export const Sanitizer = (props: SanitizerProps) =>{
     
       let downloadButton = <></>;
       if (downloadUrl) {
-        downloadButton = <div style={{ marginTop: '10px' }}>
+        downloadButton = <div>
           Download <Link href={downloadUrl} download={fileName}> {fileName}</Link> or <Link onClick={() => { setInspectFile(true) }}>Inspect</Link>
         </div>;
       }
-    
 
     return <Stack enableScopedSelectors horizontalAlign="center" verticalAlign='center' style={layoutStackStyle}>
     <Text variant='xxLarge' style={{ position: 'relative', left: '-263px', marginBottom: '10px' }}>HAR file sanitizer (preview)</Text>
@@ -87,8 +86,7 @@ export const Sanitizer = (props: SanitizerProps) =>{
           onChange={onChecked}
           styles={checkboxStyle} />
       </Stack>
-      <div>
-        <Text>
+      <Stack horizontal style={{marginTop: '50px'}}>
           <input
             type="file"
             id="input-file"
@@ -98,11 +96,9 @@ export const Sanitizer = (props: SanitizerProps) =>{
                 setFileName,
                 setDownloadUrl,
                 setSanitizedFileJson)
-            }}
-            style={fileUploadStyle} />
-          {downloadButton}
-        </Text>
-      </div>
+            }}/>
+          <Text>{downloadButton}</Text>
+      </Stack>
     </div>
   </Stack>
 

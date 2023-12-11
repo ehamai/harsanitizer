@@ -25,8 +25,3 @@ export const radioButtonStackStyle: IStackStyles = {
         marginTop: '20px'
     },
 };
-
-export const fileUploadStyle: React.CSSProperties = {
-    marginTop: '50px',
-    display: 'inline-block'
-}
