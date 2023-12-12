@@ -18,10 +18,11 @@ export interface BatchRequest {
     requestHeaderDetails: { [id: string]: string };
 }
 
-export interface BatchResponse{
+export interface BatchResponse {
     httpStatusCode: number;
-    headers: BatchHeaders;
+    headers: { [id: string]: string };
     content: any;
+    contentLength: number;
 }
 
 export interface ArmObj {

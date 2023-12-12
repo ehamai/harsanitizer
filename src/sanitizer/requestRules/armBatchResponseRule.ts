@@ -1,9 +1,21 @@
 import { cleanProperties } from "../common/cleanProperties";
-import { Entry } from "../models/harFile";
+import { Entry, Request } from "../models/harFile";
 import { armHostnamesLowerCase } from "./armPostResponseRule";
 import { REDACTED } from "../common/constants";
 import { UberBatchRequest, UberBatchResponse } from "../models/batchRequest";
 import { SanitizationRule } from "./sanitizationRule";
+
+export const isBatchRequest = (request: Request) => {
+    if (request.method !== 'POST') {
+        return false;
+    }
+
+    const parsedUrl = new URL(request.url);
+
+    const parsedHostName = parsedUrl.hostname.toLowerCase();
+    const pathName = parsedUrl.pathname.toLowerCase();
+    return armHostnamesLowerCase.findIndex((hostname) => hostname === parsedHostName) > -1 && pathName === '/batch';
+}
 
 // Redacts entire response for POST BATCH requests
 // Only redacts keyword properties for non-POST BATCH responses
@@ -15,15 +27,7 @@ export class ArmBatchResponseRule implements SanitizationRule {
     isApplicable(requestEntry: Entry): boolean {
         const { request, response } = requestEntry;
 
-        if (request.method !== 'POST') {
-            return false;
-        }
-
-        const parsedUrl = new URL(request.url);
-
-        const parsedHostName = parsedUrl.hostname.toLowerCase();
-        const pathName = parsedUrl.pathname.toLowerCase();
-        if (armHostnamesLowerCase.findIndex((hostname) => hostname === parsedHostName) === -1 || pathName !== '/batch') {
+        if(!isBatchRequest(request)){
             return false;
         }
 

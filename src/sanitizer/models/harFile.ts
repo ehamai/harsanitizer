@@ -7,6 +7,7 @@ export interface HarFile{
 export interface Entry{
     request: Request;
     response: Response;
+    time: number;
 }
 
 export interface Request{
@@ -14,7 +15,7 @@ export interface Request{
     url: string;
     headers: NameValueKeyPair[];
     queryString: NameValueKeyPair[];
-    cookies: any[];  // etodo:
+    cookies: any[];
     postData?: Content;
 }
 
@@ -24,6 +25,7 @@ export interface Response{
     headers: NameValueKeyPair[];
     cookies: any[];
     content: Content;
+    _transferSize: number;
 }
 
 export interface Cookie{
