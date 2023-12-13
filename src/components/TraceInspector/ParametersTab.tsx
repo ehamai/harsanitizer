@@ -10,11 +10,6 @@ export const ParametersTab = (props: ParametersTabProps) =>{
     let {url} = props;
     const parameters: NameValueKeyPair[] = [];
 
-    // If this is a request within a batch request
-    if(url.startsWith('/')){
-        url = `https://temp.com${url}`;
-    }
-
     const parsedUrl = new URL(url);
     parsedUrl.searchParams.forEach((value, name) =>{
         parameters.push({

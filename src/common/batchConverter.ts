@@ -15,7 +15,7 @@ const convertBatchHeadersToHeaders = (batchHeaders: { [id: string]: string }) =>
     return headers;
 }
 
-export const convertBatchEntryToEntries = (entry: Entry, entries: InspectorEntry[]) => {
+export const convertBatchEntryToEntries = (entry: Entry, entries: InspectorEntry[], searchTerm: string) => {
     if (isBatchRequest(entry.request) && entry.request.postData) {
         const uberBatchRequest: UberBatchRequest = JSON.parse(entry.request?.postData.text);
         const uberBatchResponse: UberBatchResponse = JSON.parse(entry.response.content.text);
@@ -24,39 +24,44 @@ export const convertBatchEntryToEntries = (entry: Entry, entries: InspectorEntry
             const batchRequest = uberBatchRequest.requests[i];
             const batchResponse = uberBatchResponse.responses[i];
             let url = batchRequest.url;
-            if(url.startsWith('http')){
-                const parsedUrl = new URL(url);
-                url = url.split(parsedUrl.origin)[1];   // keep path + query string
-            }
+            if (!searchTerm || url.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1) {
 
-            const newEntry: InspectorEntry = {
-                request: {
-                    method: batchRequest.httpMethod,
-                    url: url,
-                    headers: convertBatchHeadersToHeaders(batchRequest.requestHeaderDetails),
-                    queryString: [],
-                    cookies: [],
-                    postData: {
-                        mimeType: 'application/json',
-                        text: JSON.stringify(batchRequest.content)
-                    }
-                },
-                response: {
-                    status: batchResponse.httpStatusCode,
-                    statusText: '',
-                    headers: convertBatchHeadersToHeaders(batchResponse.headers),
-                    cookies: [],
-                    content: {
-                        mimeType: 'application/json',
-                        text: JSON.stringify(batchResponse.content)
+                // Batch request URLs are inconsitent and may sometimes just be relative paths
+                if (!url.startsWith('http')) {
+                    const parsed = new URL(entry.request.url);
+                    url = `${parsed.protocol}//${parsed.hostname}${url}`;
+                }
+
+                const newEntry: InspectorEntry = {
+                    request: {
+                        method: batchRequest.httpMethod,
+                        url: url,
+                        headers: convertBatchHeadersToHeaders(batchRequest.requestHeaderDetails),
+                        queryString: [],
+                        cookies: [],
+                        postData: {
+                            mimeType: 'application/json',
+                            text: JSON.stringify(batchRequest.content)
+                        }
                     },
-                    _transferSize: batchResponse.contentLength
-                },
-                time: 0,
-                isBatchChildEntry: true
+                    response: {
+                        status: batchResponse.httpStatusCode,
+                        statusText: '',
+                        headers: convertBatchHeadersToHeaders(batchResponse.headers),
+                        cookies: [],
+                        content: {
+                            mimeType: 'application/json',
+                            text: JSON.stringify(batchResponse.content)
+                        },
+                        _transferSize: batchResponse.contentLength
+                    },
+                    time: 0,
+                    isBatchChildEntry: true
+                }
+
+                entries.push(newEntry);
             }
 
-            entries.push(newEntry);
         }
     }
 }

@@ -17,14 +17,6 @@ export const RequestPanel = (props: RequestPanelProps) => {
         return <></>;
     }
 
-    let url = entry.request.url;
-    if (url.startsWith('https://')) {
-        const parsedUrl = new URL(entry.request.url);
-        url = parsedUrl.pathname;
-    } else {
-        url = url.split('?')[0];
-    }
-
     return <Panel
         isOpen={!!entry}
         onDismiss={dismissPanel}

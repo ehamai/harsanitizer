@@ -1,4 +1,4 @@
-import { DetailsList, DetailsListLayoutMode, DetailsRow, IColumn, IDetailsRowProps, IDetailsRowStyles, Link } from "@fluentui/react";
+import { DetailsList, DetailsListLayoutMode, DetailsRow, IColumn, IDetailsRowProps, IDetailsRowStyles, ITextFieldStyleProps, ITextFieldStyles, Link, SelectionMode, TextField } from "@fluentui/react";
 import { Entry, HarFile } from "../../sanitizer/models/harFile";
 import { Text } from '@fluentui/react';
 import { convertBatchEntryToEntries as convertBatchRequestsToEntries } from "../../common/batchConverter";
@@ -15,6 +15,19 @@ export interface InspectorEntry extends Entry {
 }
 
 const theme = getTheme();
+
+const getSearchBoxStyles = (props: ITextFieldStyleProps): Partial<ITextFieldStyles> => {
+    return {
+      fieldGroup: [
+        { 
+            width: '400px',
+            height: '25px',
+            marginTop: '10px',
+            marginLeft: '10px'
+        }
+      ],
+  }
+}
 
 export const getStatusCodeColor = (statusCode: number) => {
     if (statusCode >= 400 && statusCode < 500) {
@@ -34,15 +47,18 @@ const getRequestStyle = (statusCode: number): React.CSSProperties =>{
 export function TraceInspector(props: TraceInspectorProps) {
     const fileContent = props.fileContent;
     const [selectedEntry, setSelectedEntry] = useState<InspectorEntry | null>(null);
+    const [searchText, setSearchText] = useState<string>('');
 
     const entries: InspectorEntry[] = [];
     for (const entry of fileContent.log.entries) {
-        entries.push({
-            ...entry,
-            isBatchChildEntry: false
-        });
+        if(!searchText || entry.request.url.toLowerCase().indexOf(searchText.toLowerCase()) > -1){
+            entries.push({
+                ...entry,
+                isBatchChildEntry: false
+            });    
+        }
 
-        convertBatchRequestsToEntries(entry, entries);
+        convertBatchRequestsToEntries(entry, entries, searchText);
     }
 
     const onRenderMethodCol = (item?: InspectorEntry, index?: number, column?: IColumn) => {
@@ -54,7 +70,10 @@ export function TraceInspector(props: TraceInspectorProps) {
     const onRenderUrlCol = (item?: InspectorEntry, index?: number, column?: IColumn) => {
         if (item) {
             if (item.isBatchChildEntry) {
-                return <Link onClick={() =>{ setSelectedEntry(item)}} style={getRequestStyle(item.response.status)}>&nbsp;&nbsp;&nbsp;&nbsp;- {item.request.url}</Link>
+                const parsedUrl = new URL(item.request.url);
+                const url = item.request.url.split(parsedUrl.origin)[1];   // remove the 'https://<hostname>' prefix
+            
+                return <Link onClick={() =>{ setSelectedEntry(item)}} style={getRequestStyle(item.response.status)}>&nbsp;&nbsp;&nbsp;&nbsp;- {url}</Link>
             }
 
             return <Link onClick={() =>{ setSelectedEntry(item)}} style={getRequestStyle(item.response.status)}>{item.request.url}</Link>
@@ -118,23 +137,24 @@ export function TraceInspector(props: TraceInspectorProps) {
         isResizable: false
     }];
 
+    const onSearch = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) =>{
+        setSearchText(newValue ? newValue : '');
+    }
+
     return <>
+        <TextField placeholder='Search by URL' styles={getSearchBoxStyles} onChange={onSearch}></TextField>
         <DetailsList
             items={entries}
             columns={columns}
             setKey="set"
             compact={true}
             layoutMode={DetailsListLayoutMode.fixedColumns}
+            selectionMode={SelectionMode.none}
             onRenderRow={onRenderRow}
-            // selection={this._selection}
-            // selectionPreservedOnEmptyClick={true}
             ariaLabelForSelectionColumn="Toggle selection"
             ariaLabelForSelectAllCheckbox="Toggle selection for all items"
             checkButtonAriaLabel="select row"
-        // onItemInvoked={this._onItemInvoked}
         />
         <RequestPanel entry={selectedEntry} dismissPanel={dismissPanel}></RequestPanel>
     </>
-
-    // return <h1>trace inspector</h1>;
 }
