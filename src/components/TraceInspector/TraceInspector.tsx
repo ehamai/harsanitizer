@@ -1,10 +1,20 @@
-import { DetailsList, DetailsListLayoutMode, DetailsRow, IColumn, IDetailsRowProps, IDetailsRowStyles, ITextFieldStyleProps, ITextFieldStyles, Link, SelectionMode, TextField } from "@fluentui/react";
+import { ConstrainMode,
+    DetailsList,
+    DetailsListLayoutMode,
+    DetailsRow,
+    IColumn,
+    IDetailsRowProps,
+    IDetailsRowStyles,
+    Link,
+    SelectionMode,
+    TextField } from "@fluentui/react";
 import { Entry, HarFile } from "../../sanitizer/models/harFile";
 import { Text } from '@fluentui/react';
 import { convertBatchEntryToEntries as convertBatchRequestsToEntries } from "../../common/batchConverter";
 import { getTheme } from '@fluentui/react/lib/Styling';
 import { useState } from "react";
 import { RequestPanel } from "./RequestPanel";
+import { selectionZoneClassNames, focusZoneProps, getRequestStyle, getSearchBoxStyles, gridStyles } from "./TraceInspector.styles";
 
 export interface TraceInspectorProps {
     fileContent: HarFile
@@ -16,34 +26,6 @@ export interface InspectorEntry extends Entry {
 
 const theme = getTheme();
 
-const getSearchBoxStyles = (props: ITextFieldStyleProps): Partial<ITextFieldStyles> => {
-    return {
-      fieldGroup: [
-        { 
-            width: '400px',
-            height: '25px',
-            marginTop: '10px',
-            marginLeft: '10px'
-        }
-      ],
-  }
-}
-
-export const getStatusCodeColor = (statusCode: number) => {
-    if (statusCode >= 400 && statusCode < 500) {
-        return theme.palette.orange;
-    } else if(statusCode >= 500){
-        return theme.palette.redDark;
-    }
-
-    return theme.palette.black;
-}
-
-const getRequestStyle = (statusCode: number): React.CSSProperties =>{
-    return { color: getStatusCodeColor(statusCode) };
-
-}
-
 export function TraceInspector(props: TraceInspectorProps) {
     const fileContent = props.fileContent;
     const [selectedEntry, setSelectedEntry] = useState<InspectorEntry | null>(null);
@@ -51,11 +33,11 @@ export function TraceInspector(props: TraceInspectorProps) {
 
     const entries: InspectorEntry[] = [];
     for (const entry of fileContent.log.entries) {
-        if(!searchText || entry.request.url.toLowerCase().indexOf(searchText.toLowerCase()) > -1){
+        if (!searchText || entry.request.url.toLowerCase().indexOf(searchText.toLowerCase()) > -1) {
             entries.push({
                 ...entry,
                 isBatchChildEntry: false
-            });    
+            });
         }
 
         convertBatchRequestsToEntries(entry, entries, searchText);
@@ -72,11 +54,11 @@ export function TraceInspector(props: TraceInspectorProps) {
             if (item.isBatchChildEntry) {
                 const parsedUrl = new URL(item.request.url);
                 const url = item.request.url.split(parsedUrl.origin)[1];   // remove the 'https://<hostname>' prefix
-            
-                return <Link onClick={() =>{ setSelectedEntry(item)}} style={getRequestStyle(item.response.status)}>&nbsp;&nbsp;&nbsp;&nbsp;- {url}</Link>
+
+                return <Link onClick={() => { setSelectedEntry(item) }} style={getRequestStyle(item.response.status)}>&nbsp;&nbsp;&nbsp;&nbsp;- {url}</Link>
             }
 
-            return <Link onClick={() =>{ setSelectedEntry(item)}} style={getRequestStyle(item.response.status)}>{item.request.url}</Link>
+            return <Link onClick={() => { setSelectedEntry(item) }} style={getRequestStyle(item.response.status)}>{item.request.url}</Link>
         }
     };
 
@@ -104,7 +86,7 @@ export function TraceInspector(props: TraceInspectorProps) {
         return null;
     }
 
-    const dismissPanel = () =>{
+    const dismissPanel = () => {
         setSelectedEntry(null);
     }
 
@@ -134,10 +116,10 @@ export function TraceInspector(props: TraceInspectorProps) {
         name: 'Duration',
         onRender: onRenderDuration,
         minWidth: 70,
-        isResizable: false
+        isResizable: true
     }];
 
-    const onSearch = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) =>{
+    const onSearch = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
         setSearchText(newValue ? newValue : '');
     }
 
@@ -147,8 +129,12 @@ export function TraceInspector(props: TraceInspectorProps) {
             items={entries}
             columns={columns}
             setKey="set"
-            compact={true}
             layoutMode={DetailsListLayoutMode.fixedColumns}
+            constrainMode={ConstrainMode.unconstrained}
+            compact={true}
+            styles={gridStyles}
+            focusZoneProps={focusZoneProps}
+            selectionZoneProps={{ className: selectionZoneClassNames.selectionZone }}
             selectionMode={SelectionMode.none}
             onRenderRow={onRenderRow}
             ariaLabelForSelectionColumn="Toggle selection"

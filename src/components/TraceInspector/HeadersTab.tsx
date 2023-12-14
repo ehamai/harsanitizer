@@ -7,9 +7,10 @@ import {
     TextField,
     getTheme
 } from "@fluentui/react";
-import { InspectorEntry, getStatusCodeColor } from "./TraceInspector";
+import { InspectorEntry } from "./TraceInspector";
 import { getTabContainerItem, getTabContainerItemStretchVertical } from "./RequestPanel.styles";
 import { NameValueList } from "../NameValueList";
+import { getStatusCodeColor } from "./TraceInspector.styles";
 
 export interface HeadersTabProps {
     entry: InspectorEntry,
