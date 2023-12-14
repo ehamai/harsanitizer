@@ -24,7 +24,7 @@ test('CookiesAndHeadersRule cleans headers with dangerous keywords', () =>{
         }
     }
 
-    const keywords = [...dangerousKeywords, 'cookie', 'set-cookie'];
+    const keywords = [...dangerousKeywords, 'cookie', 'set-cookie', 'ocp-apim-header-authorization'];
 
     for(const keyword of keywords){
         entry.request.headers.push({ name: keyword, value: 'dangerous value'});

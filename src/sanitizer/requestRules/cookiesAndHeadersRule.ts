@@ -2,7 +2,7 @@ import { REDACTED, dangerousKeywords } from "../common/constants";
 import { Cookie, Entry, NameValueKeyPair } from "../models/harFile";
 import { SanitizationRule } from "./sanitizationRule";
 
-export class CookiesAndHeadersRule implements SanitizationRule{
+export class CookiesAndHeadersRule implements SanitizationRule {
     getName(): string {
         return 'cookiesAndHeadersRule';
     }
@@ -12,7 +12,7 @@ export class CookiesAndHeadersRule implements SanitizationRule{
     }
 
     sanitize(requestEntry: Entry): void {
-        const {request, response} = requestEntry;
+        const { request, response } = requestEntry;
 
         this._cleanCookieValues(request.cookies);
         this._cleanHeaders(request.headers);
@@ -21,12 +21,16 @@ export class CookiesAndHeadersRule implements SanitizationRule{
         this._cleanHeaders(response.headers);
     }
 
-    private _cleanHeaders(headers: NameValueKeyPair[]){
-        if(headers){
-            const keywords = [...dangerousKeywords, 'cookie', 'set-cookie']
-            for(const header of headers){
-                for(const keyword of keywords){
-                    if(header.name.toLowerCase().indexOf(keyword) > -1){
+    private _cleanHeaders(headers: NameValueKeyPair[]) {
+        if (headers) {
+            const keywords = [...dangerousKeywords,
+                'cookie',
+                'set-cookie',
+                'ocp-apim-header-authorization']
+
+            for (const header of headers) {
+                for (const keyword of keywords) {
+                    if (header.name.toLowerCase().indexOf(keyword) > -1) {
                         header.value = REDACTED;
                     }
                 }
@@ -34,11 +38,11 @@ export class CookiesAndHeadersRule implements SanitizationRule{
         }
     }
 
-    private _cleanCookieValues(cookies: Cookie[]){
-        if(cookies){
-            for(const cookie of cookies){
+    private _cleanCookieValues(cookies: Cookie[]) {
+        if (cookies) {
+            for (const cookie of cookies) {
                 cookie.value = REDACTED;
-            }    
+            }
         }
     }
 }
