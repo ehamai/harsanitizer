@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react';
-import { Link, Stack } from '@fluentui/react';
+import { Link } from '@fluentui/react';
 import { TraceInspector } from './components/TraceInspector/TraceInspector';
 import { HarFile } from './sanitizer/models/harFile';
 import { Sanitizer } from './components/Sanitizer/Sanitizer';
 
 const title = 'HAR file sanitizer (preview)';
 
-const logIssueLinkeStyle: React.CSSProperties = {
-  margin: '30px'
+const topCornerStyle = (): React.CSSProperties => {
+  return {
+    position: 'absolute',
+    right: '30px',
+    top: '12px',
+    zIndex: 100
+  }
 }
 
 function App() {
@@ -18,14 +23,21 @@ function App() {
     document.title = title;
   }, [])
 
+  const getLogIssuesLink = () => {
+    return <div style={topCornerStyle()}>
+      <Link href='https://github.com/ehamai/harsanitizer/issues' target='_blank'>Log issues</Link>
+    </div>
+  }
+
   return (
     inspectFile ? (
-      <TraceInspector fileContent={sanitizedFileJson as HarFile}></TraceInspector>
+      <>
+        {getLogIssuesLink()}
+        <TraceInspector fileContent={sanitizedFileJson as HarFile}></TraceInspector>
+      </>
     ) : (
       <div>
-        <Stack horizontalAlign="end" horizontal>
-          <Link href='https://github.com/ehamai/harsanitizer/issues' target='_blank' style={logIssueLinkeStyle}>Log issues</Link>
-        </Stack>
+        {getLogIssuesLink()}
         <Sanitizer setInspectFile={setInspectFile} setSanitizedFileJson={setSanitizedFileJson}></Sanitizer>
       </div>)
   );

@@ -1,52 +1,73 @@
-import { Checkbox, Link, Stack, Text } from "@fluentui/react"
+import { Checkbox, DefaultButton, Link, PrimaryButton, Stack, Text } from "@fluentui/react"
 import { checkboxStyle, containerStyle, layoutStackStyle, radioButtonStackStyle } from "./Sanitizer.styles"
 import { FormEvent, useState } from "react";
 import { HarFile } from "../../sanitizer/models/harFile";
 import { SanitizationCategories } from "../../sanitizer/sanitizer";
 import { onFileUpload } from "../../common/fileUpload";
 
-export interface SanitizerProps{
-    setInspectFile: React.Dispatch<React.SetStateAction<boolean>>;
-    setSanitizedFileJson: React.Dispatch<React.SetStateAction<HarFile | null>>;
+export interface SanitizerProps {
+  setInspectFile: React.Dispatch<React.SetStateAction<boolean>>;
+  setSanitizedFileJson: React.Dispatch<React.SetStateAction<HarFile | null>>;
 }
 
 const stackTokens = {
-    childrenGap: 10
-  };
+  childrenGap: 10
+};
 
-export const Sanitizer = (props: SanitizerProps) =>{
-    const [downloadUrl, setDownloadUrl] = useState('');
-    const [fileName, setFileName] = useState('');
-    const [sanitizationCategories, setSanitizationCategories] = useState<SanitizationCategories>({
-      cookiesAndHeaders: true,
-      authorizationTokens: true,
-      armPostResponses: true,
-      generalJsonResponses: true,
-      generalJsonPutPostRequests: true
-    });
+export const Sanitizer = (props: SanitizerProps) => {
+  const [downloadUrl, setDownloadUrl] = useState('');
+  const [fileName, setFileName] = useState('');
+  const [sanitizationCategories, setSanitizationCategories] = useState<SanitizationCategories>({
+    cookiesAndHeaders: true,
+    authorizationTokens: true,
+    armPostResponses: true,
+    generalJsonResponses: true,
+    generalJsonPutPostRequests: true
+  });
 
-    const {setInspectFile, setSanitizedFileJson } = props;
+  const { setInspectFile, setSanitizedFileJson } = props;
 
-    const onChecked = (event: FormEvent<HTMLInputElement | HTMLElement> | undefined, checked?: boolean | undefined) => {
-        if (event) {
-          const newRulesToRun = { ...sanitizationCategories };
-          if (newRulesToRun[event.currentTarget.id] === undefined) {
-            throw Error(`Could not find property: "${event.currentTarget.id}"`);
-          }
-    
-          newRulesToRun[event.currentTarget.id] = (event.currentTarget as any).checked;
-          setSanitizationCategories(newRulesToRun);
-        }
-      }
-    
-      let downloadButton = <></>;
-      if (downloadUrl) {
-        downloadButton = <div>
-          Download <Link href={downloadUrl} download={fileName}> {fileName}</Link> or <Link onClick={() => { setInspectFile(true) }}>Inspect</Link>
-        </div>;
+  const onChecked = (event: FormEvent<HTMLInputElement | HTMLElement> | undefined, checked?: boolean | undefined) => {
+    if (event) {
+      const newRulesToRun = { ...sanitizationCategories };
+      if (newRulesToRun[event.currentTarget.id] === undefined) {
+        throw Error(`Could not find property: "${event.currentTarget.id}"`);
       }
 
-    return <Stack enableScopedSelectors horizontalAlign="center" verticalAlign='center' style={layoutStackStyle}>
+      newRulesToRun[event.currentTarget.id] = (event.currentTarget as any).checked;
+      setSanitizationCategories(newRulesToRun);
+    }
+  }
+
+  const restart =() =>{
+    setDownloadUrl('');
+    setFileName('');
+  }
+
+  const getButtons = () => {
+    if (!downloadUrl) {
+      return <input
+        type="file"
+        id="input-file"
+        onChange={(event) => {
+          onFileUpload(event,
+            sanitizationCategories,
+            setFileName,
+            setDownloadUrl,
+            setSanitizedFileJson)
+        }} />
+    } else {
+      return <Stack>
+        <Text>Successfully sanitized and stored in '{fileName}' (<Link onClick={restart}>Restart</Link>)</Text>
+        <div style={{ marginTop: '15px' }}>
+          <PrimaryButton href={downloadUrl} download={fileName}>Download</PrimaryButton>
+          <DefaultButton style={{ marginLeft: '10px' }} onClick={() => { setInspectFile(true)}}>Inspect</DefaultButton>
+        </div>
+      </Stack>
+    }
+  }
+
+  return <Stack enableScopedSelectors horizontalAlign="center" verticalAlign='center' style={layoutStackStyle}>
     <Text variant='xxLarge' style={{ position: 'relative', left: '-263px', marginBottom: '10px' }}>HAR file sanitizer (preview)</Text>
     <div style={containerStyle}>
       <Text variant='mediumPlus'>Choose categories to sanitize and then upload a file</Text>
@@ -86,19 +107,9 @@ export const Sanitizer = (props: SanitizerProps) =>{
           onChange={onChecked}
           styles={checkboxStyle} />
       </Stack>
-      <Stack horizontal style={{marginTop: '50px'}}>
-          <input
-            type="file"
-            id="input-file"
-            onChange={(event) => {
-              onFileUpload(event,
-                sanitizationCategories,
-                setFileName,
-                setDownloadUrl,
-                setSanitizedFileJson)
-            }}/>
-          <Text>{downloadButton}</Text>
-      </Stack>
+      <div style={{ marginTop: '50px' }}>
+        {getButtons()}
+      </div>
     </div>
   </Stack>
 

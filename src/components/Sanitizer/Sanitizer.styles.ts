@@ -9,13 +9,13 @@ export const checkboxStyle: ICheckboxStyles = {
 }
 
 export const layoutStackStyle: React.CSSProperties = {
-    marginTop: '300px'
+    marginTop: '150px'
 }
 
 
 export const containerStyle: React.CSSProperties = {
     border: '1px solid lightgray',
-    padding: '50px 130px',
+    padding: '50px 130px 25px 130px',
     borderRadius: '10px'
 }
 
