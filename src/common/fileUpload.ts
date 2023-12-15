@@ -20,11 +20,11 @@ const readFileContent = (file: File) => {
 export const getOutputFileNamePrefix = (inputFileName: string) => {
     const parts = inputFileName.split('.har');
     if (parts.length === 2) {
-      return `${parts[0]}.sanitized`;
+        return `${parts[0]}.sanitized`;
     }
 
     return 'sanitized';
-  }
+}
 
 export const onFileUpload = async (event: React.ChangeEvent<HTMLInputElement>,
     sanitizationCategories: SanitizationCategories,
@@ -34,30 +34,45 @@ export const onFileUpload = async (event: React.ChangeEvent<HTMLInputElement>,
 
     const input = event.target
     if (input.files && input.files.length > 0) {
-        const fileNamePrefix = getOutputFileNamePrefix(input.files[0].name);
-        setFileName(`${fileNamePrefix}.zip`);
+        await sanitizeAndCompressFile(
+            input.files[0],
+            sanitizationCategories,
+            setFileName,
+            setDownloadUrl,
+            setSanitizedFileJson);
+    }
+}
 
-        try {
-            const content = await readFileContent(input.files[0])
-            const parsedContent = JSON.parse(content) as HarFile;
-            sanitize(parsedContent, sanitizationCategories);
-            setSanitizedFileJson(parsedContent)
+export const sanitizeAndCompressFile = async (
+    file: File,
+    sanitizationCategories: SanitizationCategories,
+    setFileName: React.Dispatch<React.SetStateAction<string>>,
+    setDownloadUrl: React.Dispatch<React.SetStateAction<string>>,
+    setSanitizedFileJson: React.Dispatch<React.SetStateAction<HarFile | null>>) => {
 
-            const zip = new JSZip();
-            zip.file(`${fileNamePrefix}.har`, JSON.stringify(parsedContent));
-            const blob = await zip.generateAsync({
-                type: 'blob',
-                compression: 'DEFLATE',
-                compressionOptions: {
-                    level: 9
-                }
-            })
+    const fileNamePrefix = getOutputFileNamePrefix(file.name);
+    setFileName(`${fileNamePrefix}.zip`);
 
-            const url = URL.createObjectURL(blob);
-            console.log(url);
-            setDownloadUrl(url);
-        } catch (e) {
-            console.log(`Failed to parse and zip file: ${e}`);
-        }
+    try {
+        const content = await readFileContent(file)
+        const parsedContent = JSON.parse(content) as HarFile;
+        sanitize(parsedContent, sanitizationCategories);
+        setSanitizedFileJson(parsedContent)
+
+        const zip = new JSZip();
+        zip.file(`${fileNamePrefix}.har`, JSON.stringify(parsedContent));
+        const blob = await zip.generateAsync({
+            type: 'blob',
+            compression: 'DEFLATE',
+            compressionOptions: {
+                level: 9
+            }
+        })
+
+        const url = URL.createObjectURL(blob);
+        console.log(url);
+        setDownloadUrl(url);
+    } catch (e) {
+        console.log(`Failed to parse and zip file: ${e}`);
     }
 }

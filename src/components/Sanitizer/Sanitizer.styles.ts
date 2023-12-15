@@ -12,11 +12,17 @@ export const layoutStackStyle: React.CSSProperties = {
     marginTop: '150px'
 }
 
-
-export const containerStyle: React.CSSProperties = {
-    border: '1px solid lightgray',
-    padding: '50px 130px 25px 130px',
-    borderRadius: '10px'
+export const getContainerStyle = (isDraggingFile: boolean): React.CSSProperties => {
+    let border = '1px solid lightgray';
+    if(isDraggingFile){
+        border = '5px dashed lightblue';
+    }
+    
+    return {
+        border,
+        padding: '50px 130px 25px 130px',
+        borderRadius: '10px'
+    }
 }
 
 export const radioButtonStackStyle: IStackStyles = {
