@@ -41,6 +41,7 @@ export class JSONResponseRule implements SanitizationRule {
 
         } catch (e) {
             console.log('Failed to parse request content' + e);
+            throw e;
         }
     }
 }

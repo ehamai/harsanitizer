@@ -52,6 +52,7 @@ export class ArmPostResponseRule implements SanitizationRule {
                 response.content.text = JSON.stringify(json);
             } catch (e) {
                 console.log('[armPostResponseRule] - Failed to sanitize text: ' + e);
+                throw e;
             }
         }
     }

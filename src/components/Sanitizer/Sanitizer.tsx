@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { HarFile } from "../../sanitizer/models/harFile";
 import { SanitizationCategories } from "../../sanitizer/sanitizer";
 import { onFileUpload, sanitizeAndCompressFile } from "../../common/fileUpload";
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 
 export interface SanitizerProps {
   setInspectFile: React.Dispatch<React.SetStateAction<boolean>>;
@@ -27,6 +28,8 @@ export const Sanitizer = (props: SanitizerProps) => {
     generalJsonResponses: true,
     generalJsonPutPostRequests: true
   });
+
+  const appInsights = useAppInsightsContext();
 
   const onChecked = (event: FormEvent<HTMLInputElement | HTMLElement> | undefined, checked?: boolean | undefined) => {
     if (event) {
@@ -55,7 +58,8 @@ export const Sanitizer = (props: SanitizerProps) => {
         sanitizationCategories,
         setFileName,
         setDownloadUrl,
-        setSanitizedFileJson)
+        setSanitizedFileJson,
+        appInsights);
     }
   }
 
@@ -79,7 +83,8 @@ export const Sanitizer = (props: SanitizerProps) => {
             sanitizationCategories,
             setFileName,
             setDownloadUrl,
-            setSanitizedFileJson)
+            setSanitizedFileJson,
+            appInsights);
         }} />
     } else {
       return <Stack>
