@@ -65,9 +65,10 @@ export const sanitizeAndCompressFile = async (
         setSanitizedFileJson(parsedContent)
     }
     catch (e: any){
+
+        // Purposely not logging exceptions to avoid storing sensitive data
         appInsights.trackException({
-            id: 'parseFileFailure',
-            exception: e
+            id: 'parseFileFailure'
         });
 
         throw e;
