@@ -4,7 +4,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { initializeIcons } from '@fluentui/react/lib/Icons';
 import { ApplicationInsights } from '@microsoft/applicationinsights-web'
-import { AppInsightsContext, AppInsightsErrorBoundary, ReactPlugin } from '@microsoft/applicationinsights-react-js';
+import { AppInsightsContext, ReactPlugin } from '@microsoft/applicationinsights-react-js';
 import { createBrowserHistory } from "history";
 import './index.css';
 
