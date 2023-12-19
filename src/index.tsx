@@ -29,11 +29,9 @@ if(connectionString){
 
 ReactDOM.render(
   <React.StrictMode>
-    <AppInsightsErrorBoundary onError={() => <h1>Something went wrong</h1>} appInsights={reactPlugin}>
       <AppInsightsContext.Provider value={reactPlugin}>
         <App />
       </AppInsightsContext.Provider>
-    </AppInsightsErrorBoundary>
   </React.StrictMode>,
   document.getElementById('root')
 );
