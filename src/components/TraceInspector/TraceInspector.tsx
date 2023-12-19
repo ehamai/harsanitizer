@@ -15,6 +15,7 @@ import { getTheme } from '@fluentui/react/lib/Styling';
 import { useState } from "react";
 import { RequestPanel } from "./RequestPanel";
 import { selectionZoneClassNames, focusZoneProps, getRequestStyle, getSearchBoxStyles, gridStyles } from "./TraceInspector.styles";
+import { useAppInsightsContext } from "@microsoft/applicationinsights-react-js";
 
 export interface TraceInspectorProps {
     fileContent: HarFile
@@ -30,6 +31,7 @@ export function TraceInspector(props: TraceInspectorProps) {
     const fileContent = props.fileContent;
     const [selectedEntry, setSelectedEntry] = useState<InspectorEntry | null>(null);
     const [searchText, setSearchText] = useState<string>('');
+    const appInsights = useAppInsightsContext();
 
     const entries: InspectorEntry[] = [];
     for (const entry of fileContent.log.entries) {
@@ -40,7 +42,16 @@ export function TraceInspector(props: TraceInspectorProps) {
             });
         }
 
-        convertBatchRequestsToEntries(entry, entries, searchText);
+        try{
+            convertBatchRequestsToEntries(entry, entries, searchText);
+        } catch(e: any){
+            console.log(`Failed to convert batch requests to individual entries: ${e}`);
+            
+            // Purposely not logging raw exception in case it contains sensitive information
+            appInsights.trackException({
+                id: 'batchRequestConversionFailure'
+            })
+        }
     }
 
     const onRenderMethodCol = (item?: InspectorEntry, index?: number, column?: IColumn) => {

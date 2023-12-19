@@ -1,3 +1,4 @@
+import { ReactPlugin } from "@microsoft/applicationinsights-react-js";
 import { HarFile } from "./models/harFile";
 import { ArmBatchResponseRule } from "./requestRules/armBatchResponseRule";
 import { ArmPostResponseRule } from "./requestRules/armPostResponseRule";
@@ -17,7 +18,7 @@ export interface SanitizationCategories {
     generalJsonPutPostRequests: boolean;
 }
 
-export const sanitize = (file: HarFile, categories: SanitizationCategories) => {
+export const sanitize = (file: HarFile, categories: SanitizationCategories, appInsights: ReactPlugin) => {
     const sanitizationRules = getSanitizationRules(categories);
     for (const entry of file.log.entries) {
         for (const rule of sanitizationRules) {
@@ -26,7 +27,18 @@ export const sanitize = (file: HarFile, categories: SanitizationCategories) => {
                     rule.sanitize(entry);
                 }
             } catch (e) {
-                console.log(`[${rule.getName()}] Failed to sanitize url: ${entry.request.method} ${entry.request.url}`);
+                const errorMessage = `[${rule.getName()}] Failed to sanitize url: ${entry.request.method} ${entry.request.url}`
+                console.log(`${errorMessage}: ${e}`)
+
+                // Console logs will have raw exception but we're not logging it to app insights just in case it contains sensitive information
+                appInsights.trackException({
+                    id: 'sanitizationFailure',
+                    exception: new Error(errorMessage),
+                }, {
+                    ruleName: rule.getName(),
+                    url: entry.request.url,
+                    method: entry.request.method
+                })
             }
         }
     }

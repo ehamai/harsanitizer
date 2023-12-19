@@ -28,9 +28,10 @@ export class JSONPutPostRequestRule implements SanitizationRule {
             const content = JSON.parse(request.postData.text);
             cleanProperties(content, this.getName());
             request.postData.text = JSON.stringify(content);
-    
         } catch (e) {
             console.log('Failed to parse request content' + e);
+
+            throw e;
         }
     }
 }

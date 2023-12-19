@@ -1,3 +1,4 @@
+import { ReactPlugin } from "@microsoft/applicationinsights-react-js";
 import { HarFile } from "../sanitizer/models/harFile";
 import { SanitizationCategories, sanitize } from "../sanitizer/sanitizer";
 const JSZip = require('jszip');
@@ -30,7 +31,8 @@ export const onFileUpload = async (event: React.ChangeEvent<HTMLInputElement>,
     sanitizationCategories: SanitizationCategories,
     setFileName: React.Dispatch<React.SetStateAction<string>>,
     setDownloadUrl: React.Dispatch<React.SetStateAction<string>>,
-    setSanitizedFileJson: React.Dispatch<React.SetStateAction<HarFile | null>>) => {
+    setSanitizedFileJson: React.Dispatch<React.SetStateAction<HarFile | null>>,
+    appInsights: ReactPlugin) => {
 
     const input = event.target
     if (input.files && input.files.length > 0) {
@@ -39,7 +41,8 @@ export const onFileUpload = async (event: React.ChangeEvent<HTMLInputElement>,
             sanitizationCategories,
             setFileName,
             setDownloadUrl,
-            setSanitizedFileJson);
+            setSanitizedFileJson,
+            appInsights);
     }
 }
 
@@ -48,17 +51,30 @@ export const sanitizeAndCompressFile = async (
     sanitizationCategories: SanitizationCategories,
     setFileName: React.Dispatch<React.SetStateAction<string>>,
     setDownloadUrl: React.Dispatch<React.SetStateAction<string>>,
-    setSanitizedFileJson: React.Dispatch<React.SetStateAction<HarFile | null>>) => {
+    setSanitizedFileJson: React.Dispatch<React.SetStateAction<HarFile | null>>,
+    appInsights: ReactPlugin) => {
 
     const fileNamePrefix = getOutputFileNamePrefix(file.name);
     setFileName(`${fileNamePrefix}.zip`);
+    let parsedContent: HarFile;
 
     try {
         const content = await readFileContent(file)
-        const parsedContent = JSON.parse(content) as HarFile;
-        sanitize(parsedContent, sanitizationCategories);
+        parsedContent = JSON.parse(content) as HarFile;
+        sanitize(parsedContent, sanitizationCategories, appInsights);
         setSanitizedFileJson(parsedContent)
+    }
+    catch (e: any){
 
+        // Purposely not logging exceptions to avoid storing sensitive data
+        appInsights.trackException({
+            id: 'parseFileFailure'
+        });
+
+        throw e;
+    }
+
+    try{
         const zip = new JSZip();
         zip.file(`${fileNamePrefix}.har`, JSON.stringify(parsedContent));
         const blob = await zip.generateAsync({
@@ -70,9 +86,11 @@ export const sanitizeAndCompressFile = async (
         })
 
         const url = URL.createObjectURL(blob);
-        console.log(url);
         setDownloadUrl(url);
-    } catch (e) {
-        console.log(`Failed to parse and zip file: ${e}`);
+    } catch (e: any) {
+        appInsights.trackException({
+            id: 'zipFailure',
+            exception: e
+        })
     }
 }
