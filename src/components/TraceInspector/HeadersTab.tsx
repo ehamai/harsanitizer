@@ -46,7 +46,7 @@ export const HeadersTab = (props: HeadersTabProps) => {
     const { isResponseHeaders, entry } = props;
     const { request, response } = entry;
 
-    const headers = request.headers;
+    const headers = isResponseHeaders ? response.headers : request.headers;
 
     // Test parameters
     // const headers = [];

@@ -3,8 +3,17 @@ import { UberBatchRequest, UberBatchResponse } from "../sanitizer/models/batchRe
 import { Entry, NameValueKeyPair } from "../sanitizer/models/harFile";
 import { isBatchRequest } from "../sanitizer/requestRules/armBatchResponseRule";
 
-const convertBatchHeadersToHeaders = (batchHeaders: { [id: string]: string }) => {
+const convertBatchHeadersToHeaders = (uberBatchHeaders: {[id: string]: string}, batchHeaders: { [id: string]: string }) => {
     const headers: NameValueKeyPair[] = [];
+    if(uberBatchHeaders){
+        for(const key of Object.keys(uberBatchHeaders)){
+            headers.push({
+                name: key,
+                value: uberBatchHeaders[key]
+            });
+        }    
+    }
+
     for (const key of Object.keys(batchHeaders)) {
         headers.push({
             name: key,
@@ -36,7 +45,9 @@ export const convertBatchEntryToEntries = (entry: Entry, entries: InspectorEntry
                     request: {
                         method: batchRequest.httpMethod,
                         url: url,
-                        headers: convertBatchHeadersToHeaders(batchRequest.requestHeaderDetails),
+
+                        // Headers for individual requests are sent within the uber batch request payload
+                        headers: convertBatchHeadersToHeaders(uberBatchRequest.headers as any, batchRequest.requestHeaderDetails),
                         queryString: [],
                         cookies: [],
                         postData: {
@@ -47,7 +58,7 @@ export const convertBatchEntryToEntries = (entry: Entry, entries: InspectorEntry
                     response: {
                         status: batchResponse.httpStatusCode,
                         statusText: '',
-                        headers: convertBatchHeadersToHeaders(batchResponse.headers),
+                        headers: convertBatchHeadersToHeaders({}, batchResponse.headers),
                         cookies: [],
                         content: {
                             mimeType: 'application/json',
