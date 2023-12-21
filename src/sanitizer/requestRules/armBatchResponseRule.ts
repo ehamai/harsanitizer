@@ -27,7 +27,7 @@ export class ArmBatchResponseRule implements SanitizationRule {
     isApplicable(requestEntry: Entry): boolean {
         const { request, response } = requestEntry;
 
-        if(!isBatchRequest(request)){
+        if (!isBatchRequest(request)) {
             return false;
         }
 
@@ -47,6 +47,8 @@ export class ArmBatchResponseRule implements SanitizationRule {
         const uberBatchRequest: UberBatchRequest = JSON.parse(request.postData.text);
         const uberBatchResponse: UberBatchResponse = JSON.parse(response.content.text);
 
+        // NOTE: Rethinking this, it would probably make more sense to just convert each individual batch request into a regular request
+        // and then run each of them through all of the sanitizer rules so that we wouldn't have to duplicate some of the logic here.
         for (let i = 0; i < uberBatchRequest.requests.length; i++) {
             const batchRequest = uberBatchRequest.requests[i];
             const batchResponse = uberBatchResponse.responses[i];
@@ -57,16 +59,28 @@ export class ArmBatchResponseRule implements SanitizationRule {
 
             if (typeof batchResponse.content === 'object') {
                 try {
-                    // If the request is a POST request, then we redact all JSON properties from the response
-                    // If it's not a POST request, then we just redact special keyword properties
-                    cleanProperties(batchResponse.content, this.getName(), batchRequest.httpMethod === 'POST' /* cleanAllProperties */);
+
+                    // Some batch requests only have relative path URLs
+                    let pathName = '';
+                    if (!batchRequest.url.startsWith('/')) {
+                        pathName = new URL(batchRequest.url).pathname.toLowerCase();
+                    } else {
+                        pathName = new URL(`https://temp.com${batchRequest.url.toLowerCase()}`).pathname.toLowerCase();
+                    }
+
+                    if (pathName !== '/providers/microsoft.resourcegraph/resources') {
+                        // If the request is a POST request, then we redact all JSON properties from the response
+                        // If it's not a POST request, then we just redact special keyword properties
+                        cleanProperties(batchResponse.content, this.getName(), batchRequest.httpMethod === 'POST' /* cleanAllProperties */);
+                    }
+
                 } catch (e) {
                     console.log('Failed to clean POST batch response. Redacting entire response');
 
                     // We err on the side of caution and redact the entire response.
                     batchResponse.content = REDACTED;
                 }
-            } else{
+            } else {
                 // If we can't parse the content then we redact the whole thing to be safe
                 batchResponse.content = REDACTED;
             }

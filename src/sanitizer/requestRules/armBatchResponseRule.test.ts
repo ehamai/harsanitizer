@@ -52,6 +52,16 @@ test('armBatchResponseRule sanitize ', () => {
             httpMethod: 'POST',
             url: 'https://post-non-success-response',
             content: {}
+        },
+        {
+            httpMethod: 'POST',
+            url: 'https://management.azure.com/providers/microsoft.resourcegraph/resources?api-version=2023-12-01',
+            content: {}
+        },
+        {
+            httpMethod: 'POST',
+            url: '/providers/microsoft.resourcegraph/resources?api-version=2023-12-01',
+            content: {}
         }]
     };
 
@@ -59,7 +69,8 @@ test('armBatchResponseRule sanitize ', () => {
         responses: [{
             httpStatusCode: 200,
             content: {
-                stringProp: 'stringValue'
+                stringProp: 'stringValue',
+                secretProp: 'secretValue'
             }
         },
         {
@@ -81,6 +92,28 @@ test('armBatchResponseRule sanitize ', () => {
             httpStatusCode: 400,
             content: {
                 stringProp: 'stringValue'
+            }
+        },
+        {
+            httpStatusCode: 200,
+            content: {
+                stringProp: 'stringValue',
+                arrayProp: ['stringValue0'],
+                numProp: 1,
+                properties: {
+                    childStringProp: 'childStringValue'
+                }
+            }
+        },
+        {
+            httpStatusCode: 200,
+            content: {
+                stringProp: 'stringValue',
+                arrayProp: ['stringValue0'],
+                numProp: 1,
+                properties: {
+                    childStringProp: 'childStringValue'
+                }
             }
         }]
     }
@@ -107,14 +140,25 @@ test('armBatchResponseRule sanitize ', () => {
     rule.sanitize(entry);
     const sanitizedUberResponse: UberBatchResponse = JSON.parse(entry.response.content.text);
 
-    expect(sanitizedUberResponse.responses[0].content.stringProp).toEqual('stringValue');
+    expect(sanitizedUberResponse.responses[0].content.stringProp).toEqual(uberBatchResponse.responses[0].content.stringProp);
+    expect(sanitizedUberResponse.responses[0].content.secretProp).toEqual(REDACTED);
 
     expect(sanitizedUberResponse.responses[1].content.stringProp).toEqual(REDACTED);
-    expect(sanitizedUberResponse.responses[1].content.arrayProp[0]).toEqual('stringValue0');
-    expect(sanitizedUberResponse.responses[1].content.numProp).toEqual(1);
+    expect(sanitizedUberResponse.responses[1].content.arrayProp[0]).toEqual(uberBatchResponse.responses[1].content.arrayProp[0]);
+    expect(sanitizedUberResponse.responses[1].content.numProp).toEqual(uberBatchResponse.responses[1].content.numProp);
     expect(sanitizedUberResponse.responses[1].content.properties.childStringProp).toEqual(REDACTED);
 
     expect(sanitizedUberResponse.responses[2].content).toEqual(REDACTED);
 
-    expect(sanitizedUberResponse.responses[3].content.stringProp).toEqual('stringValue');
+    expect(sanitizedUberResponse.responses[3].content.stringProp).toEqual(uberBatchResponse.responses[3].content.stringProp);
+
+    expect(sanitizedUberResponse.responses[4].content.stringProp).toEqual(uberBatchResponse.responses[4].content.stringProp);
+    expect(sanitizedUberResponse.responses[4].content.arrayProp[0]).toEqual(uberBatchResponse.responses[4].content.arrayProp[0]);
+    expect(sanitizedUberResponse.responses[4].content.numProp).toEqual(uberBatchResponse.responses[4].content.numProp);
+    expect(sanitizedUberResponse.responses[4].content.properties.childStringProp).toEqual(uberBatchResponse.responses[4].content.properties.childStringProp);
+
+    expect(sanitizedUberResponse.responses[5].content.stringProp).toEqual(uberBatchResponse.responses[5].content.stringProp);
+    expect(sanitizedUberResponse.responses[5].content.arrayProp[0]).toEqual(uberBatchResponse.responses[5].content.arrayProp[0]);
+    expect(sanitizedUberResponse.responses[5].content.numProp).toEqual(uberBatchResponse.responses[5].content.numProp);
+    expect(sanitizedUberResponse.responses[5].content.properties.childStringProp).toEqual(uberBatchResponse.responses[5].content.properties.childStringProp);
 })
