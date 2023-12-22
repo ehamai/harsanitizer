@@ -29,6 +29,7 @@ export const convertBatchEntryToEntries = (entry: Entry, entries: InspectorEntry
         const uberBatchRequest: UberBatchRequest = JSON.parse(entry.request?.postData.text);
         const uberBatchResponse: UberBatchResponse = JSON.parse(entry.response.content.text);
 
+        let index = entries.length;
         for (let i = 0; i < uberBatchRequest.requests.length; i++) {
             const batchRequest = uberBatchRequest.requests[i];
             const batchResponse = uberBatchResponse.responses[i];
@@ -67,7 +68,8 @@ export const convertBatchEntryToEntries = (entry: Entry, entries: InspectorEntry
                         _transferSize: batchResponse.contentLength
                     },
                     time: 0,
-                    isBatchChildEntry: true
+                    isBatchChildEntry: true,
+                    index: index++
                 }
 
                 entries.push(newEntry);

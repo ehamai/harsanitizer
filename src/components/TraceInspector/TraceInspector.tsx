@@ -1,4 +1,5 @@
-import { ConstrainMode,
+import {
+    ConstrainMode,
     DetailsList,
     DetailsListLayoutMode,
     DetailsRow,
@@ -7,7 +8,8 @@ import { ConstrainMode,
     IDetailsRowStyles,
     Link,
     SelectionMode,
-    TextField } from "@fluentui/react";
+    TextField
+} from "@fluentui/react";
 import { Entry, HarFile } from "../../sanitizer/models/harFile";
 import { Text } from '@fluentui/react';
 import { convertBatchEntryToEntries as convertBatchRequestsToEntries } from "../../common/batchConverter";
@@ -23,6 +25,7 @@ export interface TraceInspectorProps {
 
 export interface InspectorEntry extends Entry {
     isBatchChildEntry: boolean;
+    index: number
 }
 
 const theme = getTheme();
@@ -34,24 +37,28 @@ export function TraceInspector(props: TraceInspectorProps) {
     const appInsights = useAppInsightsContext();
 
     const entries: InspectorEntry[] = [];
+    let index = 0;
     for (const entry of fileContent.log.entries) {
         if (!searchText || entry.request.url.toLowerCase().indexOf(searchText.toLowerCase()) > -1) {
             entries.push({
                 ...entry,
-                isBatchChildEntry: false
+                isBatchChildEntry: false,
+                index: index++
             });
         }
 
-        try{
+        try {
             convertBatchRequestsToEntries(entry, entries, searchText);
-        } catch(e: any){
+        } catch (e: any) {
             console.log(`Failed to convert batch requests to individual entries: ${e}`);
-            
+
             // Purposely not logging raw exception in case it contains sensitive information
             appInsights.trackException({
                 id: 'batchRequestConversionFailure'
             })
         }
+
+        index = entries.length;
     }
 
     const onRenderMethodCol = (item?: InspectorEntry, index?: number, column?: IColumn) => {
@@ -88,7 +95,15 @@ export function TraceInspector(props: TraceInspectorProps) {
     const onRenderRow = (props: IDetailsRowProps | undefined) => {
         const customStyles: Partial<IDetailsRowStyles> = {};
         if (props) {
-            if (props.itemIndex % 2 === 0) {
+            if (props.itemIndex === selectedEntry?.index) {
+                customStyles.root = {
+                    backgroundColor: theme.palette.yellowLight,
+                    ':hover': {
+                        backgroundColor: theme.palette.yellowLight
+                    }
+                };
+
+            } else if (props.itemIndex % 2 === 0) {
                 customStyles.root = { backgroundColor: theme.palette.themeLighterAlt };
             }
 
